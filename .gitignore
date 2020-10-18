@@ -4,3 +4,4 @@ forflask/
 .cache/
 ~*
 env_flask/
+venv/
