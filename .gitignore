@@ -1,0 +1,6 @@
+__pycache__
+forflask/
+.vscode/
+.cache/
+~*
+env_flask/
