@@ -20,13 +20,12 @@
 
 				<!-- Banner -->
 					<section id="intro" class="main">
-						<span class="icon fa-diamond major"></span>
-						<h2>Magna porta maximus</h2>
-						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae<br />
-						malesuada turpis. Nam pellentesque in ac aliquam. Aliquam tempor<br />
-						mi porta egestas maximus lorem ipsum dolor.</p>
+						<span class="icon fa-user-graduate major"></span>
+
+						<h2>Sharse, la librairie de fiches de révision</h2>
+						<p>Ici, tu pourras facilement stocker tes fiches de révisions et en découvrir d'autres sur de nombreux sujets. Inscris-toi et démarre l'aventure.</p>
 						<ul class="actions">
-							<li><a href="#" class="button big">Learn More</a></li>
+							<li><a href="#" class="button big mt-3">Inscription</a></li>
 						</ul>
 					</section>
 
@@ -35,9 +34,9 @@
 						<article class="item">
 							<header>
 								<a href="#"><img src={{ url_for('static', filename='images/pic01.jpg') }} alt="" /></a>
-								<h3>Feugiat et faucibus</h3>
+								<h3>Créer</h3>
 							</header>
-							<p>Fusce malesuada efficitur venenatis. Pellentesque tempor leo sed massa hendrerit hendrerit. In sed feugiat est, eu congue elit. Ut porta magna vel felis sodales vulputate. Donec faucibus dapibus lacus non ornare.</p>
+							<p>Crée ta fiche de cours sur le support que tu veux.</p>
 							<ul class="actions">
 								<li><a href="#" class="button">More</a></li>
 							</ul>
@@ -45,9 +44,9 @@
 						<article class="item">
 							<header>
 								<a href="#"><img src={{ url_for('static', filename="images/pic02.jpg") }} alt="" /></a>
-								<h3>Blandit adipiscing</h3>
+								<h3>Convertir</h3>
 							</header>
-							<p>Fusce malesuada efficitur venenatis. Pellentesque tempor leo sed massa hendrerit hendrerit. In sed feugiat est, eu congue elit. Ut porta magna vel felis sodales vulputate. Donec faucibus dapibus lacus non ornare.</p>
+							<p>Transforme ton document en un beau PDF.</p>
 							<ul class="actions">
 								<li><a href="#" class="button">More</a></li>
 							</ul>
@@ -55,9 +54,9 @@
 						<article class="item">
 							<header>
 								<a href="#"><img src={{ url_for('static', filename="images/pic03.jpg") }} alt="" /></a>
-								<h3>Lorem massa nulla</h3>
+								<h3>Partager</h3>
 							</header>
-							<p>Fusce malesuada efficitur venenatis. Pellentesque tempor leo sed massa hendrerit hendrerit. In sed feugiat est, eu congue elit. Ut porta magna vel felis sodales vulputate. Donec faucibus dapibus lacus non ornare.</p>
+							<p>Envoi ton fichier en PDF sur notre serveur.</p>
 							<ul class="actions">
 								<li><a href="#" class="button">More</a></li>
 							</ul>
@@ -65,9 +64,9 @@
 						<article class="item">
 							<header>
 								<a href="#"><img src={{ url_for('static', filename="images/pic04.jpg") }} alt="" /></a>
-								<h3>Ipsum sed tempus</h3>
+								<h3>Découvrir</h3>
 							</header>
-							<p>Fusce malesuada efficitur venenatis. Pellentesque tempor leo sed massa hendrerit hendrerit. In sed feugiat est, eu congue elit. Ut porta magna vel felis sodales vulputate. Donec faucibus dapibus lacus non ornare.</p>
+							<p>Retrouve tes cours directement sur ta librairie personnelle. Découvre les cours des autres utilisateurs sur les sujets qui t'intéressent.</p>
 							<ul class="actions">
 								<li><a href="#" class="button">More</a></li>
 							</ul>
@@ -76,24 +75,15 @@
 
 				<!-- CTA -->
 					<section id="cta" class="main special">
-						<h2>Etiam veroeros lorem</h2>
-						<p>Phasellus ac augue ac magna auctor tempus proin<br />
-						accumsan lacus a nibh commodo in pellentesque dui<br />
-						in hac habitasse platea dictumst.</p>
+						<h2>Totalement gratuit</h2>
+						<p>Ce site est gratuit et le restera toujours. Vois ici une opportunité de mettre de l'ordre dans tes feuilles de cours, d'y avoir accès partout et simplement, et surtout de partager ta vision d'un sujet. C'est aussi un bon moyen de découvrir des sujets traités de mille et une façon.</p>
 						<ul class="actions">
-							<li><a href="#" class="button big">Get Started</a></li>
+							<li><a href="{{ url_for('registration')}}" class="button big">Je veux m'inscrire</a></li>
 						</ul>
 					</section>
 
-				<!-- Main -->
-				<!--
-					<section id="main" class="main">
-						<header>
-							<h2>Lorem ipsum dolor</h2>
-						</header>
-						<p>Fusce malesuada efficitur venenatis. Pellentesque tempor leo sed massa hendrerit hendrerit. In sed feugiat est, eu congue elit. Ut porta magna vel felis sodales vulputate. Donec faucibus dapibus lacus non ornare. Etiam eget neque id metus gravida tristique ac quis erat. Aenean quis aliquet sem. Ut ut elementum sem. Suspendisse eleifend ut est non dapibus. Nulla porta, neque quis pretium sagittis, tortor lacus elementum metus, in imperdiet ante lorem vitae ipsum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Etiam eget neque id metus gravida tristique ac quis erat. Aenean quis aliquet sem. Ut ut elementum sem. Suspendisse eleifend ut est non dapibus. Nulla porta, neque quis pretium sagittis, tortor lacus elementum metus, in imperdiet ante lorem vitae ipsum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>
-					</section>
-				-->
+
+				
 
 				<!-- Footer -->
 					<footer id="footer">
