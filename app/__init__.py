@@ -1,25 +1,29 @@
-# app/__init__.py
-from flask import Flask
-from flask import render_template
-from flask import url_for
+from flask import Flask, render_template, url_for
+
+
 app = Flask(__name__)
+
 
 @app.route('/home')
 @app.route('/')
 def home():
     return render_template("home.html")
 
+
 @app.route('/account')
 def account():
     return render_template("account.html")
 
-@app.route('/connection')
-def connection():
-    return render_template("connection.html")
 
-@app.route('/registration')
-def registration():
-    return render_template("registration.html")
+@app.route('/signin')
+def signin():
+    return render_template("auth/signin.html")
+
+
+@app.route('/signup')
+def signup():
+    return render_template("auth/signup.html")
+
 
 if __name__ == "__main__":
     app.run(debug=True)
