@@ -1,7 +1,10 @@
-from flask import Flask, render_template, url_for
-
+import os
+from flask import Flask, render_template, url_for, flash
+from app.forms import SigninForm, SignupForm
 
 app = Flask(__name__)
+SECRET_KEY = os.urandom(32)
+app.config['SECRET_KEY'] = SECRET_KEY
 
 
 @app.route('/home')
@@ -17,12 +20,16 @@ def account():
 
 @app.route('/signin')
 def signin():
-    return render_template("auth/signin.html")
+    form = SigninForm()
+    return render_template("auth/signin.html", form=form)
 
 
-@app.route('/signup')
+@app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    return render_template("auth/signup.html")
+    form = SignupForm()
+    if form.validate_on_submit():
+        flash('Thanks for registering')
+    return render_template("auth/signup.html", form=form)
 
 
 if __name__ == "__main__":
