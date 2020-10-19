@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %} Index {% endblock %}
+
+{% block content %}
+
+
+<!-- Header -->
+<header id="header" class="alt">
+	<div class="inner">
+		<h1>Votre profil</h1>
+		<h2>Retrouvez vos informations et vos cours ici</h2>
+		<div class="container text-center my-5">
+			<a href="{{ url_for('home')}}" class="btn btn-outline-dark text-center" role="button"
+				aria-pressed="true">HOME</a>
+		</div>
+	</div>
+</header>
+
+<!-- Wrapper -->
+<div id="wrapper">
+
+	<!-- Banner -->
+	<section id="intro" class="main">
+		<img src="{{ url_for('static', filename='images/profile.jpg') }}" width="250px" height="auto" class="mb-3"
+			alt="">
+		<h2>NOM PRENOM</h2>
+		<p>AGE</p>
+		<p><b>Description</b> - Lorem ipsum dolor, sit amet consectetur adipisicing elit. Repellendus nobis mollitia veritatis, atque
+			similique accusamus dicta quae beatae, sit doloribus quidem assumenda voluptate facere minima illo velit
+			tempore reiciendis magni!</p>
+		<ul class="actions">
+			<li><a href="#" class="button big">Modifier mon profil</a></li>
+		</ul>
+	</section>
+
+
+	{# COLLECTION PERSO  
+					Il faudra une boucle for quand la BDD sera remplie
+					#}
+
+	<div class="container">
+		<section class="articles my-5 text-center">
+			<div class="row">
+
+				<div class="col-12 col-lg-6 col-sm-12">
+					<articles>
+						<h3 class="mt-5 text-break">TITRE</h3>
+						<h4>CATEGORY</h4>
+						<div class="metadata">DATE</div>
+						<div class="content">
+							<img src="{{ url_for('static', filename='images/sheets.jpg') }}" width="250px" height="auto"
+								alt="">
+							<div> Resume </div>
+							<div>Note</div>
+							<a href="#" class="button big">lire la fiche</a>
+						</div>
+					</articles>
+				</div>
+
+				<div class="col-12 col-lg-6 col-sm-12">
+					<articles>
+						<h3 class="mt-5 text-break">TITRE</h3>
+						<h4>CATEGORY</h4>
+						<div class="metadata">DATE</div>
+						<div class="content">
+							<img src="{{ url_for('static', filename='images/sheets.jpg') }}" width="250px" height="auto"
+								alt="">
+							<div> Resume </div>
+							<div>Note</div>
+							<a href="#" class="button big">lire la fiche</a>
+						</div>
+					</articles>
+				</div>
+
+				<div class="col-12 col-lg-6 col-sm-12">
+					<articles>
+						<h3 class="mt-5 text-break">TITRE</h3>
+						<h4>CATEGORY</h4>
+						<div class="metadata">DATE</div>
+						<div class="content">
+							<img src="{{ url_for('static', filename='images/sheets.jpg') }}" width="250px" height="auto"
+								alt="">
+							<div> Resume </div>
+							<div>Note</div>
+							<a href="#" class="button big">lire la fiche</a>
+						</div>
+					</articles>
+				</div>
+
+				<div class="col-12 col-lg-6 col-sm-12">
+					<articles>
+						<h3 class="mt-5 text-break">TITRE</h3>
+						<h4>CATEGORY</h4>
+						<div class="metadata">DATE</div>
+						<div class="content">
+							<img src="{{ url_for('static', filename='images/sheets.jpg') }}" width="250px" height="auto"
+								alt="">
+							<div> Resume </div>
+							<div>Note</div>
+							<a href="#" class="button big">lire la fiche</a>
+						</div>
+					</articles>
+				</div>
+
+			</div>
+		</section>
+	</div>
+
+
+	<!-- Footer -->
+	<footer id="footer">
+		<ul class="icons">
+			<li><a href="#" class="icon fa-twitter"><span class="label">Twitter</span></a></li>
+			<li><a href="#" class="icon fa-facebook"><span class="label">Facebook</span></a></li>
+			<li><a href="#" class="icon fa-instagram"><span class="label">Instagram</span></a></li>
+			<li><a href="#" class="icon fa-linkedin"><span class="label">LinkedIn</span></a></li>
+			<li><a href="#" class="icon fa-envelope"><span class="label">Email</span></a></li>
+		</ul>
+		<p class="copyright">&copy; Untitled. Design: <a href="https://templated.co">TEMPLATED</a>. Images: <a
+				href="https://unsplash.com">Unsplash</a>.</p>
+	</footer>
+
+</div>
+
+
+</body>
+
+</html>
+
+{% endblock %}
