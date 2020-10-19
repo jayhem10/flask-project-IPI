@@ -1,6 +1,13 @@
-@import url(font-awesome.min.css);
+
 @import url("https://fonts.googleapis.com/css?family=Pacifico|Source+Sans+Pro:200,400");
 
+/*
+	Epilogue by TEMPLATED
+	templated.co @templatedco
+	Released for free under the Creative Commons Attribution 3.0 license (templated.co/license)
+*/
+
+/* Reset */
 
 	html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
 		margin: 0;
@@ -11,7 +18,7 @@
 		vertical-align: baseline;
 	}
 
-	article, aside, details, figcaption, figure, footer, header, hgroup, menu, section {
+	article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
 		display: block;
 	}
 
@@ -52,7 +59,12 @@
 /* Basic */
 
 	@-ms-viewport {
-		width: device-width;nav
+		width: device-width;
+	}
+
+	body {
+		-ms-overflow-style: scrollbar;
+	}
 
 	@media screen and (max-width: 480px) {
 
@@ -65,10 +77,17 @@
 	body {
 		background: #f4f4f4;
 	}
-	nav{
+
+		body.is-loading *, body.is-loading *:before, body.is-loading *:after {
+			-moz-animation: none !important;
+			-webkit-animation: none !important;
+			-ms-animation: none !important;
+			animation: none !important;
+			-moz-transition: none !important;
+			-webkit-transition: none !important;
+			-ms-transition: none !important;
 			transition: none !important;
 		}
-		
 
 /* Type */
 
@@ -1116,7 +1135,7 @@
 					width: 100%;
 					height: 100%;
 					background-color: rgba(0, 0, 0, 0.25);
-					background-image: url("images/overlay.png");
+					background-image: url("../images/overlay.png");
 				}
 
 			.item header:hover a {
@@ -1273,7 +1292,7 @@
 		-ms-flex-direction: column;
 		flex-direction: column;
 		padding: 8em 0 6em 0;
-		background-image: url("../../images/banner.jpg");
+		background-image: url("../images/banner.jpg");
 		background-size: cover;
 		background-position: center;
 		background-attachment: fixed;
@@ -1324,7 +1343,7 @@
 			width: 100%;
 			height: 100%;
 			background-color: rgba(0, 0, 0, 0.25);
-			background-image: url("images/overlay.png");
+			background-image: url("../images/overlay.png");
 		}
 
 		#header h1 {
@@ -1537,96 +1556,25 @@
 
 		}
 
-/* NAVBAR */
+		/* Navbar */
 
-.logo {
-	line-height: 60px;
-	position: fixed;
-	float: left;
-	margin: 16px 46px;
-	color: #fff;
-	font-weight: bold;
-	font-size: 20px;
-	letter-spacing: 2px;
-}
+		nav a{
+			border-bottom: none;
+			font-weight: 200;
+			font-family: "Pacifico", cursive;
+			text-transform: none;
+			letter-spacing: 0;
+		}
+		
+		a.navbar-brand{
+			font-size: 4em;
+		}
 
-nav {
-	position: fixed;
-	width: 100%;
-	line-height: 60px;
-}
-
-nav ul {
-	line-height: 60px;
-	list-style: none;
-	background: rgba(0, 0, 0, 0);
-	overflow: hidden;
-	color: #fff;
-	padding: 0;
-	text-align: right;
-	margin: 0;
-	padding-right: 40px;
-	transition: 1s;
-}
-
-nav.black ul {
-	background: #000;
-}
-
-nav ul li {
-	display: inline-block;
-	padding: 16px 40px;;
-}
-
-nav ul li a {
-	text-decoration: none;
-	color: #fff;
-	font-size: 16px;
-}
-
-.menu-icon {
-	line-height: 60px;
-	width: 100%;
-	background: #000;
-	text-align: right;
-	box-sizing: border-box;
-	padding: 15px 24px;
-	cursor: pointer;
-	color: #fff;
-	display: none;
-}
-
-@media(max-width: 786px) {
-
-	.logo {
-		  position: fixed;
-		  top: 0;
-		  margin-top: 16px;
-	}
-
-	nav ul {
-		  max-height: 0px;
-		  background: #000;
-	}
-
-	nav.black ul {
-		  background: #000;
-	}
-
-	.showing {
-		  max-height: 34em;
-	}
-
-	nav ul li {
-		  box-sizing: border-box;
-		  width: 100%;
-		  padding: 24px;
-		  text-align: center;
-	}
-
-	.menu-icon {
-		  display: block;
-	}
-
-}
+		.nav-link{
+			font-size: 2em;
+			font-weight: 200;
+			font-family: "Pacifico", cursive;
+			text-transform: none;
+			letter-spacing: 0;
+		}
 

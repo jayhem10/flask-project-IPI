@@ -1,6 +1,7 @@
 # app/__init__.py
 from flask import Flask
 from flask import render_template
+from flask import url_for
 app = Flask(__name__)
 
 @app.route('/home')
@@ -12,5 +13,13 @@ def home():
 def index():
     return render_template("index.html")
 
-if __name__ == '__main__':
+@app.route('/connection')
+def connection():
+    return render_template("connection.html")
+
+@app.route('/registration')
+def registration():
+    return render_template("registration.html")
+
+if __name__ == "__main__":
     app.run(debug=True)
