@@ -5,6 +5,16 @@
 {% block content %}
 
 <h1 class="text-center mt-5">Formulaire d'inscription</h1>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
 <form action="" method="post" novalidate>
 	{{ form.hidden_tag() }}
 	<div class='' > 

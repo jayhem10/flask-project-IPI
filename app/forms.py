@@ -23,7 +23,6 @@ class SignupForm(FlaskForm):
     description = StringField(
         'Votre description', widget=TextArea(), validators=[Length(max=256)])
     image = FileField('Votre image de profile', validators=[
-        FileRequired(),
         FileAllowed(['jpg', 'png'], 'Image uniquement !')
     ])
     submit = SubmitField('Créer le compte')
