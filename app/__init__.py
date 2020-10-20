@@ -19,11 +19,11 @@ app.config['SECRET_KEY'] = SECRET_KEY
 if not firebase_admin._apps:
     cred = credentials.Certificate('fbAdminConfig.json')
     firebase = firebase_admin.initialize_app(cred)
-pb = pyrebase.initialize_app(json.load(open('fbconfig.json')))
+firebase = pyrebase.initialize_app(json.load(open('fbconfig.json')))
 # Connection to database
-auth = pb.auth()
-db = firestore.client()
-users = db.collection('users')
+db = firebase.database()
+auth = firebase.auth()
+users = db.child('users')
 
 
 def ensure_logged_in(fn):
@@ -46,6 +46,9 @@ def home():
 @ensure_logged_in
 def account():
     flash(f'{session.get("user")}')
+    user_id = session.get("user")['localId']
+    user = users.child(user_id).get().val()
+    flash(f'{user}')
     return render_template("account.html")
 
 
@@ -78,7 +81,7 @@ def signup():
                 email=request.form['email'],
                 password=request.form['password']
             )
-            users.document(user['localId']).set({
+            users.child(user['localId']).set({
                 'firstname': request.form['firstname'],
                 'lastname': request.form['lastname'],
                 'description': request.form['description'],
