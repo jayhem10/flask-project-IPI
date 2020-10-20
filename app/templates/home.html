@@ -9,9 +9,6 @@
 			<header id="header" class="alt">
 				<div class="inner">
 					<h1>Bienvenue sur Sharse</h1>
-					<div class="container text-center my-5">
-						<a href="{{ url_for('account')}}" class="btn btn-outline-dark text-center" role="button" aria-pressed="true">Account page - test button</a>
-						</div>
 				</div>
 			</header>
 
@@ -25,7 +22,7 @@
 						<h2>Sharse, la librairie de fiches de révision</h2>
 						<p>Ici, tu pourras facilement stocker tes fiches de révisions et en découvrir d'autres sur de nombreux sujets. Inscris-toi et démarre l'aventure.</p>
 						<ul class="actions">
-							<li><a href="#" class="button big mt-3">Inscription</a></li>
+							<li><a href="{{ url_for('signin')}}" class="button big mt-3">Inscription</a></li>
 						</ul>
 					</section>
 
