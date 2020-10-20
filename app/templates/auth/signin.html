@@ -4,17 +4,17 @@
 
 {% block content %}
 
-<h1 class="text-center mt-5">Formulaire de connexion</h1>
+<h1 class="text-center my-5 container">Formulaire de connexion</h1>
 {% with messages = get_flashed_messages() %}
   {% if messages %}
-    <ul class=flashes>
+    <ul class="flashes container">
     {% for message in messages %}
       <li>{{ message }}</li>
     {% endfor %}
     </ul>
   {% endif %}
 {% endwith %}
-<form action="" method="post" novalidate>
+<form action="" class="container" method="post" novalidate>
 	{{ form.hidden_tag() }}
 	<div class='' > 
 		<p>
