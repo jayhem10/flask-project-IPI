@@ -60,5 +60,34 @@ def signup():
     return render_template("auth/signup.html", form=form)
 
 
+@app.route('/signout')
+def signout():
+    session.pop('username')
+    return redirect(url_for('home'))
+
+
+@app.route('/account/profile')
+def profile():
+        form = SignupForm()
+        if form.validate_on_submit():
+            try:
+       
+                users.document(user.uid).set({
+                    'firstname': request.form['firstname'],
+                    'lastname': request.form['lastname'],
+                    'description': request.form['description'],
+                    'email': request.form['email']
+                })
+                flash('Votre compte a bien été modifié vous allez être redirigé')
+            except:
+                flash('Une erreur est survenue lors de la création de votre compte')    
+        return render_template("auth/profile.html", form=form)
+
+
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)
+
+    

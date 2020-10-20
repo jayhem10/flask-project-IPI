@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<h1 class="text-center my-5">Formulaire d'inscription</h1>
+<h1 class="text-center my-5">Modification du profil</h1>
 {% with messages = get_flashed_messages() %}
   {% if messages %}
     <ul class="container flashes">
@@ -14,6 +14,8 @@
     </ul>
   {% endif %}
 {% endwith %}
+
+
 
 <form action="" method="post" class="container" novalidate>
 	{{ form.hidden_tag() }}
