@@ -1,0 +1,10 @@
+{
+	"apiKey": "AIzaSyCdFM_zPdcikesZeV0iM8vJfG79kNtojzc",
+	"authDomain": "flask-ed7bc.firebaseapp.com",
+	"databaseURL": "https://flask-ed7bc.firebaseio.com",
+	"projectId": "flask-ed7bc",
+	"storageBucket": "flask-ed7bc.appspot.com",
+	"messagingSenderId": "682854912367",
+	"appId": "1:682854912367:web:35a59e35dd7793b7a9989a",
+	"measurementId": "G-6HMXJ9G5PM"
+}

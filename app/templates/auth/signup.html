@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %} Index {% endblock %}
+
+{% block content %}
+
+<h1 class="text-center mt-5">Formulaire d'inscription</h1>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<form action="" method="post" novalidate>
+	{{ form.hidden_tag() }}
+	<div class='' > 
+		<p>
+		
+			{{ form.email.label }}<br>
+			{{ form.email(size=16) }}<br>
+			{% for errors in form.email.errors %}
+			<span style="color:red;">{{ errors }}</span>
+			{% endfor %}
+			
+		</p>
+		<p>
+			{{ form.password.label }} <br>
+			{{ form.password(size=16) }}<br>
+			{% for errors in form.password.errors %}
+			<span style="color:red;">{{ errors }}</span>
+			{% endfor %}
+		</p>
+		<p>
+			{{ form.lastname.label }} <br>
+			{{ form.lastname(size=16) }}<br>
+			{% for errors in form.lastname.errors %}
+			<span style="color:red;">{{ errors }}</span>
+			{% endfor %}
+		</p>
+		<p>
+			{{ form.firstname.label }} <br>
+			{{ form.firstname(size=16) }}<br>
+			{% for errors in form.firstname.errors %}
+			<span style="color:red;">{{ errors }}</span>
+			{% endfor %}
+		</p>
+		<p>
+			{{ form.description.label }} <br>
+			{{ form.description(size=16) }}<br>
+			{% for errors in form.description.errors %}
+			<span style="color:red;">{{ errors }}</span>
+			{% endfor %}
+		</p>
+	<!--
+		<p>
+			{{ form.image.label }} <br>
+			{{ form.image(size=16) }}<br>
+			{% for errors in form.image.errors %}
+			<span style="color:red;">{{ errors }}</span>
+			{% endfor %}
+		</p>
+	-->
+	</div> 
+	<p> {{ form.submit() }} </p>
+	
+</form>
+{% endblock %}

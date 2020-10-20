@@ -5,3 +5,4 @@ forflask/
 ~*
 env_flask/
 venv/
+fbAdminConfig.json
