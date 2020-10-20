@@ -5,5 +5,36 @@
 {% block content %}
 
 <h1 class="text-center mt-5">Formulaire de connexion</h1>
-
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+<form action="" method="post" novalidate>
+	{{ form.hidden_tag() }}
+	<div class='' > 
+		<p>
+		
+			{{ form.email.label }}<br>
+			{{ form.email(size=16) }}<br>
+			{% for errors in form.email.errors %}
+			<span style="color:red;">{{ errors }}</span>
+			{% endfor %}
+			
+		</p>
+		<p>
+			{{ form.password.label }} <br>
+			{{ form.password(size=16) }}<br>
+			{% for errors in form.password.errors %}
+			<span style="color:red;">{{ errors }}</span>
+			{% endfor %}
+		</p>
+		
+	
+	</div> 
+	<p> {{ form.submit() }} </p>
 {% endblock %}
