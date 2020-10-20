@@ -26,3 +26,11 @@ class SignupForm(FlaskForm):
         FileAllowed(['jpg', 'png'], 'Image uniquement !')
     ])
     submit = SubmitField('Créer le compte')
+
+
+class ProfileForm(FlaskForm):
+    lastname = StringField('Votre nom', validators=[DataRequired()])
+    firstname = StringField('Votre prénom', validators=[DataRequired()])
+    description = StringField(
+        'Votre description', widget=TextArea(), validators=[Length(max=256)])
+    submit = SubmitField('Modifier mon compte')

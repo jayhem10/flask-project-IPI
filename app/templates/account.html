@@ -24,7 +24,7 @@
 	<section id="intro" class="main">
 		<img src="{{ url_for('static', filename='images/profile.jpg') }}" width="250px" height="auto" class="mb-3"
 			alt="">
-		<h2>{{user.firstname}} {{user.lastname}}</h2>
+		<h2>{{user.firstname}} {{user.lastname}} {{user.LocalId}}</h2>
 		<p>{{user.description}}</p>
 		<ul class="actions">
 			<li><a href="{{ url_for('profile')}}" class="button big">Modifier mon profil</a></li>
@@ -69,9 +69,10 @@
 						</div>
 					</articles>
 				</div>
+<script>
+	console.log(user);
+</script>
 
-				<div class="col-12 col-lg-6 col-sm-12">
-					<articles>
 						<h3 class="mt-5 text-break">TITRE</h3>
 						<h4>CATEGORY</h4>
 						<div class="metadata">DATE</div>

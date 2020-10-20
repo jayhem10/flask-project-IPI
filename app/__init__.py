@@ -6,7 +6,8 @@ from functools import wraps
 from firebase_admin import credentials, auth, firestore
 from flask import Flask, render_template, url_for, flash, request, session, redirect
 from flask_wtf.csrf import CSRFProtect
-from app.forms import SigninForm, SignupForm
+from app.forms import SigninForm, SignupForm, ProfileForm
+
 
 
 app = Flask(__name__)
@@ -86,7 +87,8 @@ def signup():
                 'description': request.form['description'],
                 'email': request.form['email']
             })
-            flash('Votre compte a bien été créer vous allez être redirigé')
+            flash('Votre compte a bien été créeé, connectez-vous !')
+            return redirect(url_for('signin'))
         except:
             flash('Une erreur est survenue lors de la création de votre compte')
     return render_template("auth/signup.html", form=form)
@@ -98,22 +100,23 @@ def signout():
     return redirect(url_for('home'))
 
 
-@app.route('/account/profile')
+
+# MODIFICATION DU compte
+@app.route('/account/profile', methods=['GET', 'POST'])
 def profile():
-        form = SignupForm()
-        if form.validate_on_submit():
-            try:
-       
-                users.document(user.uid).set({
-                    'firstname': request.form['firstname'],
-                    'lastname': request.form['lastname'],
-                    'description': request.form['description'],
-                    'email': request.form['email']
-                })
-                flash('Votre compte a bien été modifié vous allez être redirigé')
-            except:
-                flash('Une erreur est survenue lors de la création de votre compte')    
-        return render_template("auth/profile.html", form=form)
+    form = ProfileForm()
+    if form.validate_on_submit():
+        try:
+            db.child('users').child(session.get("user")['localId']).update({
+                'firstname': request.form['firstname'],
+                'lastname': request.form['lastname'],
+                'description': request.form['description']
+            })
+            flash('Votre compte a bien été modifié')
+            return redirect(url_for('account'))
+        except:
+            flash('Une erreur est survenue lors de la modification de votre compte')
+    return render_template("auth/profile.html", form=form)
 
 
 

@@ -16,26 +16,10 @@
 {% endwith %}
 
 
-
-<form action="" method="post" class="container" novalidate>
+<form action="{{ url_for('profile') }}" method="post" class="container" novalidate>
 	{{ form.hidden_tag() }}
 	<div class='' > 
-		<p>
-		
-			{{ form.email.label }}<br>
-			{{ form.email(size=16) }}<br>
-			{% for errors in form.email.errors %}
-			<span style="color:red;">{{ errors }}</span>
-			{% endfor %}
-			
-		</p>
-		<p>
-			{{ form.password.label }} <br>
-			{{ form.password(size=16) }}<br>
-			{% for errors in form.password.errors %}
-			<span style="color:red;">{{ errors }}</span>
-			{% endfor %}
-		</p>
+
 		<p>
 			{{ form.lastname.label }} <br>
 			{{ form.lastname(size=16) }}<br>
@@ -57,15 +41,7 @@
 			<span style="color:red;">{{ errors }}</span>
 			{% endfor %}
 		</p>
-	<!--
-		<p>
-			{{ form.image.label }} <br>
-			{{ form.image(size=16) }}<br>
-			{% for errors in form.image.errors %}
-			<span style="color:red;">{{ errors }}</span>
-			{% endfor %}
-		</p>
-	-->
+
 	</div> 
 	<p> {{ form.submit() }} </p>
 	
