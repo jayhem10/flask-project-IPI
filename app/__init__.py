@@ -94,7 +94,7 @@ def signup():
 
 @app.route('/signout')
 def signout():
-    session.pop('username')
+    session.clear()
     return redirect(url_for('home'))
 
 
