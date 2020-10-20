@@ -9,7 +9,6 @@ from flask_wtf.csrf import CSRFProtect
 from app.forms import SigninForm, SignupForm, ProfileForm
 
 
-
 app = Flask(__name__)
 
 
@@ -45,8 +44,7 @@ def home():
 @app.route('/account', methods=['GET'])
 @ensure_logged_in
 def account():
-    users = db.child('users')
-    user = users.child(session.get("user")['localId']).get().val()
+    user = db.child('users').child(session.get("user")['localId']).get().val()
     flash(f'{session.get("user")}')
     return render_template("account.html", user=user)
 
@@ -80,8 +78,7 @@ def signup():
                 email=request.form['email'],
                 password=request.form['password']
             )
-            users = db.child('users')
-            users.child(user['localId']).set({
+            db.child('users').child(user['localId']).set({
                 'firstname': request.form['firstname'],
                 'lastname': request.form['lastname'],
                 'description': request.form['description'],
@@ -100,11 +97,15 @@ def signout():
     return redirect(url_for('home'))
 
 
-
 # MODIFICATION DU compte
 @app.route('/account/profile', methods=['GET', 'POST'])
+@ensure_logged_in
 def profile():
+    user = db.child('users').child(session.get("user")['localId']).get().val()
     form = ProfileForm()
+    form.lastname.data = user['lastname']
+    form.firstname.data = user['firstname']
+    form.description.data = user['description']
     if form.validate_on_submit():
         try:
             db.child('users').child(session.get("user")['localId']).update({
@@ -116,13 +117,8 @@ def profile():
             return redirect(url_for('account'))
         except:
             flash('Une erreur est survenue lors de la modification de votre compte')
-    return render_template("auth/profile.html", form=form)
-
-
-
+    return render_template("auth/profile.html", form=form, user=user)
 
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-    

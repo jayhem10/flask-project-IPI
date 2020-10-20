@@ -22,28 +22,28 @@
 
 		<p>
 			{{ form.lastname.label }} <br>
-			{{ form.lastname(size=16) }}<br>
+			{{ form.lastname(size=16)}}<br>
 			{% for errors in form.lastname.errors %}
 			<span style="color:red;">{{ errors }}</span>
 			{% endfor %}
 		</p>
 		<p>
 			{{ form.firstname.label }} <br>
-			{{ form.firstname(size=16) }}<br>
+			{{ form.firstname(size=16)}}<br>
 			{% for errors in form.firstname.errors %}
 			<span style="color:red;">{{ errors }}</span>
 			{% endfor %}
 		</p>
 		<p>
 			{{ form.description.label }} <br>
-			{{ form.description(size=16) }}<br>
+			{{ form.description(size=16, default=user.description)}}<br>
 			{% for errors in form.description.errors %}
 			<span style="color:red;">{{ errors }}</span>
 			{% endfor %}
 		</p>
 
 	</div> 
-	<p> {{ form.submit() }} </p>
+	<p class="align-center"> {{ form.submit() }} </p>
 	
 </form>
 {% endblock %}
