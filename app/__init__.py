@@ -23,7 +23,6 @@ firebase = pyrebase.initialize_app(json.load(open('fbconfig.json')))
 # Connection to database
 db = firebase.database()
 auth = firebase.auth()
-users = db.child('users')
 
 
 def ensure_logged_in(fn):
@@ -42,14 +41,13 @@ def home():
     return render_template("home.html")
 
 
-@app.route('/account')
+@app.route('/account', methods=['GET'])
 @ensure_logged_in
 def account():
+    users = db.child('users')
+    user = users.child(session.get("user")['localId']).get().val()
     flash(f'{session.get("user")}')
-    user_id = session.get("user")['localId']
-    user = users.child(user_id).get().val()
-    flash(f'{user}')
-    return render_template("account.html")
+    return render_template("account.html", user=user)
 
 
 @app.route('/signin', methods=['GET', 'POST'])
@@ -81,6 +79,7 @@ def signup():
                 email=request.form['email'],
                 password=request.form['password']
             )
+            users = db.child('users')
             users.child(user['localId']).set({
                 'firstname': request.form['firstname'],
                 'lastname': request.form['lastname'],
