@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
-from wtforms import StringField, TextAreaField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, TextAreaField, PasswordField, BooleanField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Length, EqualTo, Email
 from wtforms.widgets import TextArea
 
@@ -34,3 +34,18 @@ class ProfileForm(FlaskForm):
     description = StringField(
         'Votre description', widget=TextArea(), validators=[Length(max=256)])
     submit = SubmitField('Modifier mon compte')
+
+
+class CourseForm(FlaskForm):
+    title = StringField('Le titre de votre cours', validators=[DataRequired()])
+    resume = StringField('Un petit résumé',  widget=TextArea(), validators=[
+                         DataRequired(), Length(max=256)])
+    course = FileField('Votre cours', validators=[DataRequired(),
+                                                  FileAllowed(
+                                                      ['pdf'], 'Pdf uniquement !')
+                                                  ])
+    category = SelectField('Catégorie', choices=[])
+    privacy = BooleanField(
+        'Voulez vous rendre public ce cours ?', default=True,
+        render_kw={'checked': ''})
+    submit = SubmitField('Ajouter le cours')

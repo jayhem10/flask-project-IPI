@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %} Index {% endblock %}
+
+{% block content %}
+
+<h1 class="text-center my-5">Formulaire d'inscription</h1>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class="container flashes">
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<form action="" method="post" class="container" novalidate enctype="multipart/form-data">
+	{{ form.hidden_tag() }}
+	<div class='' > 
+		<p>
+		
+			{{ form.title.label }}<br>
+			{{ form.title(size=16) }}<br>
+			{% for errors in form.title.errors %}
+			<span style="color:red;">{{ errors }}</span>
+			{% endfor %}
+			
+		</p>
+		<p>
+			{{ form.resume.label }} <br>
+			{{ form.resume(size=16) }}<br>
+			{% for errors in form.resume.errors %}
+			<span style="color:red;">{{ errors }}</span>
+			{% endfor %}
+		</p>
+		<p>
+			{{ form.category.label }} <br>
+			{{ form.category(size=16) }}<br>
+			{% for errors in form.category.errors %}
+			<span style="color:red;">{{ errors }}</span>
+			{% endfor %}
+		</p>
+		<p>
+			{{ form.course.label }} <br>
+			{{ form.course(size=16) }}<br>
+			{% for errors in form.course.errors %}
+			<span style="color:red;">{{ errors }}</span>
+			{% endfor %}
+		</p>
+		<p>
+			{{ form.privacy.label }}
+			{{ form.privacy() }}<br>
+			{% for errors in form.privacy.errors %}
+			<span style="color:red;">{{ errors }}</span>
+			{% endfor %}
+		</p>
+	</div> 
+	<p class="align-center"> {{ form.submit() }} </p>
+	
+</form>
+{% endblock %}

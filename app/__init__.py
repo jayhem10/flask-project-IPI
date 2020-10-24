@@ -2,11 +2,12 @@ import os
 import firebase_admin
 import pyrebase
 import json
+from datetime import date
 from functools import wraps
 from firebase_admin import credentials, auth, firestore
 from flask import Flask, render_template, url_for, flash, request, session, redirect
 from flask_wtf.csrf import CSRFProtect
-from app.forms import SigninForm, SignupForm, ProfileForm
+from app.forms import SigninForm, SignupForm, ProfileForm, CourseForm
 
 
 app = Flask(__name__)
@@ -22,12 +23,11 @@ if not firebase_admin._apps:
 firebase = pyrebase.initialize_app(json.load(open('fbconfig.json')))
 
 
-# Connection to database
+# Connection to databases
+dbc = firestore.client()
 db = firebase.database()
 auth = firebase.auth()
 storage = firebase.storage()
-
-
 
 
 def ensure_logged_in(fn):
@@ -92,15 +92,14 @@ def signup():
                 'description': request.form['description'],
                 'email': request.form['email']
             })
-            if request.method=='POST':
-                image=request.files['image']
+            if request.method == 'POST':
+                image = request.files['image']
                 storage.child(f"profile_pictures/{user['localId']}").put(image)
             flash('Votre compte a bien été créeé, connectez-vous !')
             return redirect(url_for('signin'))
         except:
             flash('Une erreur est survenue lors de la création de votre compte')
     return render_template("auth/signup.html", form=form)
-
 
 
 @app.route('/signout')
@@ -130,6 +129,33 @@ def profile():
         except:
             flash('Une erreur est survenue lors de la modification de votre compte')
     return render_template("auth/profile.html", form=form, user=user)
+
+
+@app.route('/course/create', methods=['GET', 'POST'])
+@ensure_logged_in
+def create_course():
+    form = CourseForm()
+    categories = db.child('categories').get().val()
+    form.category.choices = categories
+    if form.validate_on_submit():
+        try:
+            ref = dbc.collection('courses').document()
+            ref.set({
+                u'title': request.form['title'],
+                u'resume': request.form['resume'],
+                u'category': request.form['category'],
+                u'created_by': session.get("user")['localId'],
+                u'date': date.today().strftime("%d/%m/%Y"),
+                u'privacy': form.data.get('privacy')
+            })
+            storage.child(f'courses/{ref.id}').put(request.files['course'])
+            flash('Votre cours un bien été créé')
+            # return redirect(url_for(f'course/{ref.id}'))
+        except:
+            flash(
+                'Une érreur est survenue lors de la création de votre cours, veillez réessayer')
+
+    return render_template("course/create_course.html", form=form)
 
 
 if __name__ == "__main__":
