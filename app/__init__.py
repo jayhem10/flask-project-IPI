@@ -46,21 +46,10 @@ def home():
     return render_template("home.html")
 
 
-@app.route('/account', methods=['GET'])
-@ensure_logged_in
-def account():
-    if True:
-        user = session.get("user")['localId']
-        links = storage.child(f"profile_pictures/{user}").get_url(None)
-    user = db.child('users').child(session.get("user")['localId']).get().val()
-    flash(f'{session.get("user")}')
-    return render_template("account.html", user=user, image=links)
-
-
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
     if session.get('user'):
-        return redirect(url_for('account'))
+        return redirect(url_for('profile'))
 
     form = SigninForm()
     if form.validate_on_submit():
@@ -68,7 +57,7 @@ def signin():
             login = auth.sign_in_with_email_and_password(
                 request.form['email'], request.form['password'])
             session['user'] = login
-            return redirect(url_for('account'))
+            return redirect(url_for('profile'))
         except:
             flash('Une erreur est survenue lors de la connexion')
     return render_template("auth/signin.html", form=form)
@@ -77,7 +66,7 @@ def signin():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if session.get('user'):
-        return redirect(url_for('account'))
+        return redirect(url_for('profile'))
 
     form = SignupForm()
     if form.validate_on_submit():
@@ -108,10 +97,20 @@ def signout():
     return redirect(url_for('home'))
 
 
-# MODIFICATION DU compte
-@app.route('/account/profile', methods=['GET', 'POST'])
+@app.route('/profile', methods=['GET'])
 @ensure_logged_in
 def profile():
+    if True:
+        user = session.get("user")['localId']
+        link = storage.child(f"profile_pictures/{user}").get_url(None)
+    user = db.child('users').child(session.get("user")['localId']).get().val()
+    flash(f'{session.get("user")}')
+    return render_template("profile.html", user=user, image=link)
+
+
+@app.route('/profile/modify', methods=['GET', 'POST'])
+@ensure_logged_in
+def modify_profile():
     user = db.child('users').child(session.get("user")['localId']).get().val()
     form = ProfileForm()
     form.lastname.data = user['lastname']
@@ -125,10 +124,10 @@ def profile():
                 'description': request.form['description']
             })
             flash('Votre compte a bien été modifié')
-            return redirect(url_for('account'))
+            return redirect(url_for('profile'))
         except:
             flash('Une erreur est survenue lors de la modification de votre compte')
-    return render_template("auth/profile.html", form=form, user=user)
+    return render_template("auth/modify_profile.html", form=form, user=user)
 
 
 @app.route('/course/create', methods=['GET', 'POST'])
