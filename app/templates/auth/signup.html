@@ -15,7 +15,7 @@
   {% endif %}
 {% endwith %}
 
-<form action="" method="post" class="container" novalidate>
+<form action="" method="post" class="container" enctype="multipart/form-data" novalidate>
 	{{ form.hidden_tag() }}
 	<div class='' > 
 		<p>
@@ -55,7 +55,6 @@
 			<span style="color:red;">{{ errors }}</span>
 			{% endfor %}
 		</p>
-	<!--
 		<p>
 			{{ form.image.label }} <br>
 			{{ form.image(size=16) }}<br>
@@ -63,7 +62,6 @@
 			<span style="color:red;">{{ errors }}</span>
 			{% endfor %}
 		</p>
-	-->
 	</div> 
 	<p class="align-center"> {{ form.submit() }} </p>
 	

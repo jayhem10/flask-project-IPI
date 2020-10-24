@@ -20,9 +20,14 @@ if not firebase_admin._apps:
     cred = credentials.Certificate('fbAdminConfig.json')
     firebase = firebase_admin.initialize_app(cred)
 firebase = pyrebase.initialize_app(json.load(open('fbconfig.json')))
+
+
 # Connection to database
 db = firebase.database()
 auth = firebase.auth()
+storage = firebase.storage()
+
+
 
 
 def ensure_logged_in(fn):
@@ -44,9 +49,12 @@ def home():
 @app.route('/account', methods=['GET'])
 @ensure_logged_in
 def account():
+    if True:
+        user = session.get("user")['localId']
+        links = storage.child(f"profile_pictures/{user}").get_url(None)
     user = db.child('users').child(session.get("user")['localId']).get().val()
     flash(f'{session.get("user")}')
-    return render_template("account.html", user=user)
+    return render_template("account.html", user=user, image=links)
 
 
 @app.route('/signin', methods=['GET', 'POST'])
@@ -84,11 +92,15 @@ def signup():
                 'description': request.form['description'],
                 'email': request.form['email']
             })
+            if request.method=='POST':
+                image=request.files['image']
+                storage.child(f"profile_pictures/{user['localId']}").put(image)
             flash('Votre compte a bien été créeé, connectez-vous !')
             return redirect(url_for('signin'))
         except:
             flash('Une erreur est survenue lors de la création de votre compte')
     return render_template("auth/signup.html", form=form)
+
 
 
 @app.route('/signout')

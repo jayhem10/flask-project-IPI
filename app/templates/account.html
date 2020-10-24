@@ -22,7 +22,7 @@
 
 	<!-- Banner -->
 	<section id="intro" class="main">
-		<img src="{{ url_for('static', filename='images/profile.jpg') }}" width="250px" height="auto" class="mb-3"
+		<img src="{{image}}" width="250px" height="auto" class="mb-3"
 			alt="">
 		<h2>{{user.firstname}} {{user.lastname}} {{user.LocalId}}</h2>
 		<p>{{user.description}}</p>
@@ -33,7 +33,7 @@
 
 
 	{# COLLECTION PERSO  
-					Il faudra une boucle for quand la BDD sera remplie
+	Il faudra une boucle for quand la BDD sera remplie
 	#}
 
 	<div class="container">
