@@ -81,9 +81,10 @@ def signup():
                 'description': request.form['description'],
                 'email': request.form['email']
             })
-            if request.method == 'POST':
-                image = request.files['image']
-                storage.child(f"profile_pictures/{user['localId']}").put(image)
+            link = request.files.get('image', False)
+            if link:
+                storage.child(f'profile_pictures/{user["localId"]}').put(link)
+
             flash('Votre compte a bien été créeé, connectez-vous !')
             return redirect(url_for('signin'))
         except:
@@ -100,12 +101,18 @@ def signout():
 @app.route('/profile', methods=['GET'])
 @ensure_logged_in
 def profile():
-    if True:
-        user = session.get("user")['localId']
-        link = storage.child(f"profile_pictures/{user}").get_url(None)
-    user = db.child('users').child(session.get("user")['localId']).get().val()
+    user_id = session.get("user")['localId']
+    user = db.child('users').child(user_id).get().val()
+    link = storage.child(f"profile_pictures/{user_id}").get_url(None)
+    try:
+        storage.child(f"profile_pictures/{user_id}").download('image')
+        os.remove('image')
+        image_exist = True
+    except:
+        image_exist = False
+
     flash(f'{session.get("user")}')
-    return render_template("profile.html", user=user, image=link)
+    return render_template("profile.html", user=user, image=link, image_exist=image_exist)
 
 
 @app.route('/profile/modify', methods=['GET', 'POST'])
