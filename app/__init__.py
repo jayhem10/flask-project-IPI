@@ -124,7 +124,7 @@ def modify_profile():
                 'description': request.form['description']
             })
             flash('Votre compte a bien été modifié')
-            return redirect(url_for('profile'))
+            return redirect(url_for("profile"))
         except:
             flash('Une erreur est survenue lors de la modification de votre compte')
     return render_template("auth/modify_profile.html", form=form, user=user)
