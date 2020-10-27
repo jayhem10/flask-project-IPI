@@ -149,8 +149,9 @@ def modify_profile():
             })
             link = request.files.get('image', False)
             if link:
-                image=request.files['image']
-                storage.child(f'profile_pictures/{session.get("user")["localId"]}').put(image)
+                image = request.files['image']
+                storage.child(
+                    f'profile_pictures/{session.get("user")["localId"]}').put(image)
 
             flash('Votre compte a bien été modifié')
             return redirect(url_for("profile"))
