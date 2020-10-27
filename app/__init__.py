@@ -4,7 +4,7 @@ import pyrebase
 import json
 import datetime
 from functools import wraps
-from firebase_admin import credentials, auth, firestore
+from firebase_admin import credentials, auth as auth_admin, firestore
 from flask import Flask, render_template, url_for, flash, request, session, redirect
 from flask_wtf.csrf import CSRFProtect
 from app.forms import SigninForm, SignupForm, ProfileForm, CourseForm
@@ -91,8 +91,7 @@ def signup():
             link = request.files.get('image', False)
             if link:
                 storage.child(f'profile_pictures/{user["localId"]}').put(link)
-
-            flash('Votre compte a bien été créeé, connectez-vous !')
+            flash('Votre compte a bien été créé, connectez-vous !')
             return redirect(url_for('signin'))
         except:
             flash('Une erreur est survenue lors de la création de votre compte')
@@ -111,15 +110,24 @@ def profile():
     user_id = session.get("user")['localId']
     user = db.child('users').child(user_id).get().val()
     link = storage.child(f"profile_pictures/{user_id}").get_url(None)
+
+
+<< << << < HEAD
     courses = dbc.collection(u'courses').where(
         u'created_by', u'==', user_id).order_by(u'date', direction=firestore.Query.DESCENDING).stream()
     try:
         storage.child(f"profile_pictures/{user_id}").download('', 'image')
+== == == =
+    flash(link)
+    try:
+        storage.child(f"profile_pictures/{user_id}").download('', 'image')
+>>>>>> > a32dc748f13ca0a8721ecc27efa10f3ba7789bb4
         os.remove('image')
         image_exist = True
     except:
         image_exist = False
 
+    flash(image_exist)
     flash(f'{session.get("user")}')
     return render_template("profile.html", user=user, image=link, image_exist=image_exist, courses=courses)
 
@@ -141,9 +149,8 @@ def modify_profile():
             })
             link = request.files.get('image', False)
             if link:
-                image = request.files['image']
-                storage.child(
-                    f'profile_pictures/{session.get("user")["localId"]}').put(image)
+                image=request.files['image']
+                storage.child(f'profile_pictures/{session.get("user")["localId"]}').put(image)
 
             flash('Votre compte a bien été modifié')
             return redirect(url_for("profile"))
@@ -180,6 +187,18 @@ def create_course():
                 'Une erreur est survenue lors de la création de votre cours, veillez réessayer')
 
     return render_template("course/create_course.html", form=form)
+
+@app.route('/delete', methods=['GET','POST'])
+@ensure_logged_in
+def delete():
+    if request.method == "POST":
+        db.child('users').child(session.get("user")['localId']).remove()
+        user = auth.current_user['localId']
+        auth_admin.delete_user(user)
+        session.clear()
+        flash("Votre compte a bien été supprimé.")
+        return redirect(url_for('home'))
+    return render_template("auth/delete.html")
 
 
 if __name__ == "__main__":
