@@ -110,18 +110,10 @@ def profile():
     user_id = session.get("user")['localId']
     user = db.child('users').child(user_id).get().val()
     link = storage.child(f"profile_pictures/{user_id}").get_url(None)
-
-
-<< << << < HEAD
     courses = dbc.collection(u'courses').where(
         u'created_by', u'==', user_id).order_by(u'date', direction=firestore.Query.DESCENDING).stream()
     try:
         storage.child(f"profile_pictures/{user_id}").download('', 'image')
-== == == =
-    flash(link)
-    try:
-        storage.child(f"profile_pictures/{user_id}").download('', 'image')
->>>>>> > a32dc748f13ca0a8721ecc27efa10f3ba7789bb4
         os.remove('image')
         image_exist = True
     except:
@@ -189,7 +181,8 @@ def create_course():
 
     return render_template("course/create_course.html", form=form)
 
-@app.route('/delete', methods=['GET','POST'])
+
+@app.route('/delete', methods=['GET', 'POST'])
 @ensure_logged_in
 def delete():
     if request.method == "POST":
