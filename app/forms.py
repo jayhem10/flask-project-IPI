@@ -33,6 +33,9 @@ class ProfileForm(FlaskForm):
     firstname = StringField('Votre prénom', validators=[DataRequired()])
     description = StringField(
         'Votre description', widget=TextArea(), validators=[Length(max=256)])
+    image = FileField('Votre image de profile', validators=[
+        FileAllowed(['jpg', 'png'], 'Image uniquement !')
+    ])
     submit = SubmitField('Modifier mon compte')
 
 

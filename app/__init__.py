@@ -2,7 +2,7 @@ import os
 import firebase_admin
 import pyrebase
 import json
-from datetime import date
+import datetime
 from functools import wraps
 from firebase_admin import credentials, auth, firestore
 from flask import Flask, render_template, url_for, flash, request, session, redirect
@@ -28,6 +28,13 @@ dbc = firestore.client()
 db = firebase.database()
 auth = firebase.auth()
 storage = firebase.storage()
+
+
+def getPdf(link):
+    return storage.child(f"{link}").get_url(None)
+
+
+app.jinja_env.globals.update(getPdf=getPdf)
 
 
 def ensure_logged_in(fn):
@@ -104,18 +111,20 @@ def profile():
     user_id = session.get("user")['localId']
     user = db.child('users').child(user_id).get().val()
     link = storage.child(f"profile_pictures/{user_id}").get_url(None)
+    courses = dbc.collection(u'courses').where(
+        u'created_by', u'==', user_id).order_by(u'date', direction=firestore.Query.DESCENDING).stream()
     try:
-        storage.child(f"profile_pictures/{user_id}").download('image')
+        storage.child(f"profile_pictures/{user_id}").download('', 'image')
         os.remove('image')
         image_exist = True
     except:
         image_exist = False
 
     flash(f'{session.get("user")}')
-    return render_template("profile.html", user=user, image=link, image_exist=image_exist)
+    return render_template("profile.html", user=user, image=link, image_exist=image_exist, courses=courses)
 
 
-@app.route('/profile/modify', methods=['GET', 'POST'])
+@app.route('/profile/modify', methods=['GET', 'POST', 'PUT'])
 @ensure_logged_in
 def modify_profile():
     user = db.child('users').child(session.get("user")['localId']).get().val()
@@ -130,6 +139,12 @@ def modify_profile():
                 'lastname': request.form['lastname'],
                 'description': request.form['description']
             })
+            link = request.files.get('image', False)
+            if link:
+                image = request.files['image']
+                storage.child(
+                    f'profile_pictures/{session.get("user")["localId"]}').put(image)
+
             flash('Votre compte a bien été modifié')
             return redirect(url_for("profile"))
         except:
@@ -146,20 +161,23 @@ def create_course():
     if form.validate_on_submit():
         try:
             ref = dbc.collection('courses').document()
+            refImage = storage.child(
+                f'courses/{ref.id}').put(request.files['course'])
             ref.set({
                 u'title': request.form['title'],
                 u'resume': request.form['resume'],
                 u'category': request.form['category'],
                 u'created_by': session.get("user")['localId'],
-                u'date': date.today().strftime("%d/%m/%Y"),
-                u'privacy': form.data.get('privacy')
+                u'date': datetime.datetime.utcnow(),
+                u'privacy': form.data.get('privacy'),
+                u'image_link': refImage['name']
             })
-            storage.child(f'courses/{ref.id}').put(request.files['course'])
+
             flash('Votre cours un bien été créé')
-            # return redirect(url_for(f'course/{ref.id}'))
+            return redirect(url_for('profile'))
         except:
             flash(
-                'Une érreur est survenue lors de la création de votre cours, veillez réessayer')
+                'Une erreur est survenue lors de la création de votre cours, veillez réessayer')
 
     return render_template("course/create_course.html", form=form)
 
