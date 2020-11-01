@@ -47,14 +47,24 @@ def ensure_logged_in(fn):
     return wrapper
 
 
+def is_my_course(fn):
+    @wraps(fn)
+    def wrapper(id, *args, **kwargs):
+        course_json = dbc.collection('courses').document(id).get()
+        course = course_json.to_dict()
+        if session.get("user")['localId'] != course['created_by']:
+            flash("Ce n'est pas l'un de vos cours !")
+            return redirect(url_for('profile'))
+        return fn(id, *args, **kwargs)
+    return wrapper
 
 # PAGE D'ACCUEIL
+
 
 @app.route('/home')
 @app.route('/')
 def home():
     return render_template("home.html")
-
 
 
 # GESTION DE L'UTILISATEUR
@@ -108,8 +118,6 @@ def signup():
 def signout():
     session.clear()
     return redirect(url_for('home'))
-
-
 
 
 @app.route('/profile', methods=['GET'])
@@ -173,8 +181,7 @@ def delete():
     return render_template("auth/delete.html")
 
 
-
-# GESTION DES COURS 
+# GESTION DES COURS
 
 # CREER LE COURS
 @app.route('/course/create', methods=['GET', 'POST'])
@@ -212,7 +219,7 @@ def create_course():
 @ensure_logged_in
 @is_my_course
 def delete_course(id):
-    link=f'courses/{id}'
+    link = f'courses/{id}'
     flash(link)
     if request.method == "POST":
         dbc.collection(u'courses').document(id).delete()
@@ -229,7 +236,7 @@ def delete_course(id):
 def modify_course(id):
     course = dbc.collection(u'courses').document(id).get().to_dict()
     form = CourseForm()
-    form.submit.data="Modifier le cours"
+    form.submit.data = "Modifier le cours"
     categories = db.child('categories').get().val()
     form.category.choices = categories
     form.title.data = course[u'title']
@@ -254,7 +261,8 @@ def modify_course(id):
             flash("Votre cours a bien été modifié.")
             return redirect(url_for('profile'))
         except:
-            flash('Une erreur est survenue lors de la modification de votre cours, veillez réessayer')
+            flash(
+                'Une erreur est survenue lors de la modification de votre cours, veillez réessayer')
     return render_template("course/modify_course.html", form=form)
 
 
@@ -265,8 +273,6 @@ def view_course(id):
     course = dbc.collection('courses').document(id).get().to_dict()
 
     return render_template("course/view_course.html", course=course)
-
-
 
 
 if __name__ == "__main__":
