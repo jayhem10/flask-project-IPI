@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %} Index {% endblock %}
+
+{% block content %}
+
+<h1 class="text-center my-5">{{course['title']}}</h1>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class="container flashes">
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<div class="container">
+<embed class="" src="{{getPdf(course['image_link'])}}" width=800 height=500 type='application/pdf'/>
+</div>
+
+
+{% endblock %}

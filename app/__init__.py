@@ -47,11 +47,17 @@ def ensure_logged_in(fn):
     return wrapper
 
 
+
+# PAGE D'ACCUEIL
+
 @app.route('/home')
 @app.route('/')
 def home():
     return render_template("home.html")
 
+
+
+# GESTION DE L'UTILISATEUR
 
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
@@ -104,6 +110,8 @@ def signout():
     return redirect(url_for('home'))
 
 
+
+
 @app.route('/profile', methods=['GET'])
 @ensure_logged_in
 def profile():
@@ -111,7 +119,7 @@ def profile():
     user = db.child('users').child(user_id).get().val()
     link = storage.child(f"profile_pictures/{user_id}").get_url(None)
     courses = dbc.collection(u'courses').where(
-        u'created_by', u'==', user_id).order_by(u'date', direction=firestore.Query.DESCENDING).stream()
+        u'created_by', u'==', user_id).order_by(u'date', direction=firestore.Query.DESCENDING).get()
     try:
         storage.child(f"profile_pictures/{user_id}").download('', 'image')
         os.remove('image')
@@ -152,6 +160,23 @@ def modify_profile():
     return render_template("auth/modify_profile.html", form=form, user=user)
 
 
+@app.route('/delete', methods=['GET', 'POST'])
+@ensure_logged_in
+def delete():
+    if request.method == "POST":
+        db.child('users').child(session.get("user")['localId']).remove()
+        user = auth.current_user['localId']
+        auth_admin.delete_user(user)
+        session.clear()
+        flash("Votre compte a bien été supprimé.")
+        return redirect(url_for('home'))
+    return render_template("auth/delete.html")
+
+
+
+# GESTION DES COURS 
+
+# CREER LE COURS
 @app.route('/course/create', methods=['GET', 'POST'])
 @ensure_logged_in
 def create_course():
@@ -182,17 +207,66 @@ def create_course():
     return render_template("course/create_course.html", form=form)
 
 
-@app.route('/delete', methods=['GET', 'POST'])
+# SUPPRIMER LE COURS
+@app.route('/course/delete/<id>', methods=['GET', 'POST'])
 @ensure_logged_in
-def delete():
+@is_my_course
+def delete_course(id):
+    link=f'courses/{id}'
+    flash(link)
     if request.method == "POST":
-        db.child('users').child(session.get("user")['localId']).remove()
-        user = auth.current_user['localId']
-        auth_admin.delete_user(user)
-        session.clear()
-        flash("Votre compte a bien été supprimé.")
-        return redirect(url_for('home'))
-    return render_template("auth/delete.html")
+        dbc.collection(u'courses').document(id).delete()
+        storage.child(link).delete()
+        flash("Votre fichier a bien été supprimé.")
+        return redirect(url_for('profile'))
+    return render_template("course/delete_course.html")
+
+
+# MODIFIER LE COURS
+@app.route('/course/modify/<id>', methods=['GET', 'POST'])
+@ensure_logged_in
+@is_my_course
+def modify_course(id):
+    course = dbc.collection(u'courses').document(id).get().to_dict()
+    form = CourseForm()
+    form.submit.data="Modifier le cours"
+    categories = db.child('categories').get().val()
+    form.category.choices = categories
+    form.title.data = course[u'title']
+    form.resume.data = course[u'resume']
+    form.category.data = course[u'category']
+    form.privacy.data = course[u'privacy']
+    if form.validate_on_submit():
+        try:
+            ref = dbc.collection('courses').document(id)
+            refImage = storage.child(
+                f'courses/{ref.id}').put(request.files['course'])
+            ref.update({
+                u'title': request.form['title'],
+                u'resume': request.form['resume'],
+                u'category': request.form['category'],
+                u'created_by': session.get("user")['localId'],
+                u'date': datetime.datetime.utcnow(),
+                u'privacy': form.data.get('privacy'),
+                u'image_link': refImage['name']
+            })
+
+            flash("Votre cours a bien été modifié.")
+            return redirect(url_for('profile'))
+        except:
+            flash('Une erreur est survenue lors de la modification de votre cours, veillez réessayer')
+    return render_template("course/modify_course.html", form=form)
+
+
+# VOIR LE COURS
+@app.route('/course/view/<id>', methods=['GET', 'POST'])
+@ensure_logged_in
+def view_course(id):
+    course = dbc.collection('courses').document(id).get().to_dict()
+
+    return render_template("course/view_course.html", course=course)
+
+
 
 
 if __name__ == "__main__":

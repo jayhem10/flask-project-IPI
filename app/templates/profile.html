@@ -4,6 +4,16 @@
 
 {% block content %}
 
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class="container flashes">
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
 
 <!-- Header -->
 <header id="header" class="alt">
@@ -41,25 +51,26 @@
 		<section class="articles my-5 text-center">
 			<div class="row">
 				{% for course in courses %}
+					{% set id_course = course.id %}
 					{% set course = course.to_dict() %}
-		
-		
 					<div class="col-12 col-lg-6 col-sm-12">
 						<articles>
 							<h3 class="mt-5 text-break">{{course['title']}}</h3>
 							<h4>{{course['category']}}</h4>
 							<div class="metadata">{{course['date'].strftime("%d/%m/%Y à %Hh%M")}}</div>
 							<div class="content">
-							<embed src={{getPdf(course['image_link'])}} width="500" height="375">
-
+							<embed src={{getPdf(course['image_link'])}} width="auto" height="375">
 								<div> {{course['resume']}}</div>
 								<div>Note</div>
-								<a href="#" class="button big">lire la fiche</a>
+								<div class="icons">
+								<a href="{{ url_for('view_course', id=id_course )}}" class="button big">lire la fiche</a>
+								<a href="{{ url_for('delete_course', id=id_course) }}" class="icon fas fa-trash-alt"></a>
+								<a href="{{ url_for('modify_course', id=id_course ) }}" class="icon fas fa-edit"></a>
+							</div>
 							</div>
 						</articles>
 					</div>
                 {% endfor %}
-
 			</div>
 		</section>
 	</div>
