@@ -7,32 +7,19 @@
 <!-- Header -->
 <header id="header" class="alt">
 	<div class="inner">
-		<h1>Votre profil</h1>
-		<h2>Retrouvez vos informations et vos cours ici</h2>
+		<h1>Informatique</h1>
+		<h2>Retrouvez vos cours d'informatique en dessous !</h2>
 		<div class="container text-center my-5">
-			<a href="{{ url_for('home')}}" class="btn btn-outline-dark text-center" role="button"
-				aria-pressed="true">HOME</a>
+			<a href="{{ url_for('profile')}}" class="btn btn-outline-dark text-center" role="button"
+				aria-pressed="true">Retour</a>
 		</div>
 	</div>
 </header>
 
-<!-- Wrapper -->
-<div id="wrapper">
-
-	<!-- Banner -->
-	<section id="intro" class="main">
-		<img src="{{image if image_exist else url_for('static', filename='images/profile.jpg')}}" width="250px" height="auto" class="mb-3"
-			alt="">
-		<h2>{{user.firstname}} {{user.lastname}}</h2>
-		<p>{{user.description}}</p>
-		<ul class="actions">
-			<li><a href="{{ url_for('modify_profile')}}" class="button big">Modifier mon profil</a></li>
-			<li><a href="{{ url_for('delete') }}" class="button big">Supprimer mon compte</a></li>
-		</ul>
-	</section>
 
 
-	<div class="container table-responsive">
+
+	<div class="container table-responsive my-5">
 		<table class="table">
 			<thead>
 			  <tr>
@@ -96,17 +83,6 @@
 
 </div>
 
-
-<!-- DEBUG -->
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul class="flashes">
-    {% for message in messages %}
-      <li>{{ message }}</li>
-    {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
 
 </body>
 

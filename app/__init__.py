@@ -8,6 +8,7 @@ from firebase_admin import credentials, auth as auth_admin, firestore
 from flask import Flask, render_template, url_for, flash, request, session, redirect
 from flask_wtf.csrf import CSRFProtect
 from app.forms import SigninForm, SignupForm, ProfileForm, CourseForm
+from google.cloud import storage as storage_cloud
 
 
 app = Flask(__name__)
@@ -21,6 +22,9 @@ if not firebase_admin._apps:
     cred = credentials.Certificate('fbAdminConfig.json')
     firebase = firebase_admin.initialize_app(cred)
 firebase = pyrebase.initialize_app(json.load(open('fbconfig.json')))
+
+
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "fbAdminConfig.json"
 
 
 # Connection to databases
@@ -137,7 +141,7 @@ def profile():
 
     flash(image_exist)
     flash(f'{session.get("user")}')
-    return render_template("profile.html", user=user, image=link, image_exist=image_exist, courses=courses)
+    return render_template("profile.html", user=user, image=link, image_exist=image_exist, courses=courses, user_id=user_id)
 
 
 @app.route('/profile/modify', methods=['GET', 'POST', 'PUT'])
@@ -171,7 +175,14 @@ def modify_profile():
 @app.route('/delete', methods=['GET', 'POST'])
 @ensure_logged_in
 def delete():
+    user_id = session.get("user")['localId']
+    link = f'profile_pictures/{user_id}'
+    bucket_name = "flask-ed7bc.appspot.com"
+    storage_client = storage_cloud.Client()
     if request.method == "POST":
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(link)
+        blob.delete()
         db.child('users').child(session.get("user")['localId']).remove()
         user = auth.current_user['localId']
         auth_admin.delete_user(user)
@@ -220,10 +231,13 @@ def create_course():
 @is_my_course
 def delete_course(id):
     link = f'courses/{id}'
-    flash(link)
+    bucket_name = "flask-ed7bc.appspot.com"
+    storage_client = storage_cloud.Client()
     if request.method == "POST":
         dbc.collection(u'courses').document(id).delete()
-        storage.child(link).delete()
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(link)
+        blob.delete()
         flash("Votre fichier a bien été supprimé.")
         return redirect(url_for('profile'))
     return render_template("course/delete_course.html")
@@ -273,6 +287,47 @@ def view_course(id):
     course = dbc.collection('courses').document(id).get().to_dict()
 
     return render_template("course/view_course.html", course=course)
+
+
+# CATEGORIES
+@app.route('/course/informatique/', methods=['GET', 'POST'])
+@ensure_logged_in
+def category_info():
+        user_id = session.get("user")['localId']
+        courses = dbc.collection(u'courses').where(u'created_by', u'==', user_id).where(u'category', u'==', u'Informatique').order_by(u'date', direction=firestore.Query.DESCENDING).get()
+       
+        return render_template("categories/informatique.html", courses=courses)
+
+
+@app.route('/course/science/', methods=['GET', 'POST'])
+@ensure_logged_in
+def category_science():
+        user_id = session.get("user")['localId']
+        courses = dbc.collection(u'courses').where(u'created_by', u'==', user_id).where(u'category', u'==', u'Sciences').order_by(u'date', direction=firestore.Query.DESCENDING).get()
+        return render_template("categories/science.html", courses=courses)
+
+
+
+
+@app.route('/course/history', methods=['GET', 'POST'])
+@ensure_logged_in
+def category_history():
+        user_id = session.get("user")['localId']
+        courses = dbc.collection(u'courses').where(u'created_by', u'==', user_id).where(u'category', u'==', u'Histoire').order_by(u'date', direction=firestore.Query.DESCENDING).get()
+        return render_template("categories/history.html", courses=courses)
+
+
+
+
+@app.route('/course/medecine', methods=['GET', 'POST'])
+@ensure_logged_in
+def category_medecine():
+        user_id = session.get("user")['localId']
+        courses = dbc.collection(u'courses').where(u'created_by', u'==', user_id).where(u'category', u'==', u'Médecine').order_by(u'date', direction=firestore.Query.DESCENDING).get()
+
+        return render_template("categories/medecine.html", courses=courses)
+
+
 
 
 if __name__ == "__main__":
