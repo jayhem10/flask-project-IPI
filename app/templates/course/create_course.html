@@ -49,9 +49,9 @@
 			{% endfor %}
 		</p>
 		<p>
-			{{ form.privacy.label }}
-			{{ form.privacy() }}<br>
-			{% for errors in form.privacy.errors %}
+			{{ form.public.label }}
+			{{ form.public() }}<br>
+			{% for errors in form.public.errors %}
 			<span style="color:red;">{{ errors }}</span>
 			{% endfor %}
 		</p>

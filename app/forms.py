@@ -48,7 +48,7 @@ class CourseForm(FlaskForm):
                                                       ['pdf'], 'Pdf uniquement !')
                                                   ])
     category = SelectField('Catégorie', choices=[])
-    privacy = BooleanField(
+    public = BooleanField(
         'Voulez vous rendre public ce cours ?', default=True,
         render_kw={'checked': ''})
     submit = SubmitField('Ajouter le cours')

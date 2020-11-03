@@ -215,7 +215,7 @@ def create_course():
                 u'category': request.form['category'],
                 u'created_by': session.get("user")['localId'],
                 u'date': datetime.datetime.utcnow(),
-                u'privacy': form.data.get('privacy'),
+                u'public': form.data.get('public'),
                 u'image_link': refImage['name']
             })
 
@@ -259,7 +259,7 @@ def modify_course(id):
     form.title.data = course[u'title']
     form.resume.data = course[u'resume']
     form.category.data = course[u'category']
-    form.privacy.data = course[u'privacy']
+    form.public.data = course[u'public']
     if form.validate_on_submit():
         try:
             ref = dbc.collection('courses').document(id)
@@ -271,7 +271,7 @@ def modify_course(id):
                 u'category': request.form['category'],
                 u'created_by': session.get("user")['localId'],
                 u'date': datetime.datetime.utcnow(),
-                u'privacy': form.data.get('privacy'),
+                u'public': form.data.get('public'),
                 u'image_link': refImage['name']
             })
 
@@ -302,6 +302,28 @@ def profile_courses_categories(category):
        
         return render_template(f"profile/courses_categories.html", courses=courses, category=category, categories=categories)
 
+
+# PUBLIC (cours et catégories)
+
+
+@app.route('/public/courses/', methods=['GET', 'POST'])
+@ensure_logged_in
+def public_courses():
+        categories = db.child('categories').get().val()
+        courses = dbc.collection(u'courses').where(u'public', u'==', True).order_by(u'date', direction=firestore.Query.DESCENDING).get()
+       
+        return render_template(f"course/public_courses.html", courses=courses, categories=categories)
+
+# CATEGORIES
+
+@app.route('/public/courses/<category>', methods=['GET', 'POST'])
+@ensure_logged_in
+def public_courses_categories(category):
+        user_id = session.get("user")['localId']
+        categories = db.child('categories').get().val()
+        courses = dbc.collection(u'courses').where(u'public', u'==', True).where(u'category', u'==', category).order_by(u'date', direction=firestore.Query.DESCENDING).get()
+       
+        return render_template(f"public/courses_categories.html", courses=courses, category=category, categories=categories)
 
 
 if __name__ == "__main__":

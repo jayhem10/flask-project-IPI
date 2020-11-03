@@ -7,35 +7,34 @@
 <!-- Header -->
 <header id="header" class="alt">
 	<div class="inner">
-		<h1>{{category}}</h1>
-		<h2>Retrouvez vos cours juste en dessous !</h2>
+		<h1>Tous les cours sont ici ! </h1>
 		<div class="container text-center my-5">
 			<a href="{{ url_for('profile')}}" class="btn btn-outline-dark text-center" role="button"
-				aria-pressed="true">Retour</a>
+				aria-pressed="true">Mon compte</a>
 		</div>
 	</div>
 </header>
 
+<!-- Wrapper -->
+<div id="wrapper">
 
-
-
-<div class="container table-responsive my-5">
-	<table class="table">
-		<thead>
-		  <tr>
-			{% for category in categories %}
-			{% set category = category %}
-			<th scope="col">
-			   <a href="{{ url_for('profile_courses_categories', category=category )}}">{{category}}</a>
-			</th>
-			{% endfor %}
-		  </tr>
-		</thead>
-	  </table>
-	</div
+	<div class="container table-responsive">
+		<table class="table">
+			<thead>
+			  <tr>
+				{% for category in categories %}
+				{% set category = category %}
+				<th scope="col">
+				   <a  href="{{ url_for('public_courses_categories', category=category )}}">{{category}}</a>
+				</th>
+				{% endfor %}
+			  </tr>
+			</thead>
+		  </table>
+		</div>
 
 	<div class="container">
-		<section class="articles my-5 text-center my-5">
+		<section class="articles my-5 text-center">
 			<div class="row">
 				{% for course in courses %}
 					{% set id_course = course.id %}
@@ -51,8 +50,6 @@
 								<div>Note</div>
 								<div class="icons">
 								<a href="{{ url_for('view_course', id=id_course )}}" class="button big">lire la fiche</a>
-								<a href="{{ url_for('delete_course', id=id_course) }}" class="icon fas fa-trash-alt"></a>
-								<a href="{{ url_for('modify_course', id=id_course ) }}" class="icon fas fa-edit"></a>
 							</div>
 							</div>
 						</articles>
