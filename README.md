@@ -10,7 +10,7 @@ V1 :
   - [x] Signup
   - [x] Signin
   - [x] Signout
-  - [ ] Send email verification
+  - [x] Send email verification
   - [ ] Send reset password
   - [x] Delete user
 - [x] Profile
@@ -22,7 +22,7 @@ V1 :
   - [x] Create course
   - [x] Delete course
   - [ ] Modify course
-  - [ ] Order by category
+  - [x] Order by category
   - [x] Add test if it's our course
 
 V2:
