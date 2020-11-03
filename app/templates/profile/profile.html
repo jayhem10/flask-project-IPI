@@ -3,7 +3,15 @@
 {% block title %} Index {% endblock %}
 
 {% block content %}
-
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class="flashes">
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
 <!-- Header -->
 <header id="header" class="alt">
 	<div class="inner">
@@ -59,7 +67,7 @@
 							<h4>{{course['category']}}</h4>
 							<div class="metadata">{{course['date'].strftime("%d/%m/%Y à %Hh%M")}}</div>
 							<div class="content">
-							<embed src={{getPdf(course['image_link'])}} width="auto" height="375">
+							<embed src={{get_pdf(course['image_link'])}} width="auto" height="375">
 								<div> {{course['resume']}}</div>
 								<div>Note</div>
 								<div class="icons">

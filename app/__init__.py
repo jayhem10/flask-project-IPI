@@ -33,12 +33,21 @@ db = firebase.database()
 auth = firebase.auth()
 storage = firebase.storage()
 
+BUCKET_NAME = "flask-ed7bc.appspot.com"
+storage_client = storage_cloud.Client()
+bucket = storage_client.bucket(BUCKET_NAME)
 
-def getPdf(link):
+
+def get_pdf(link):
     return storage.child(f"{link}").get_url(None)
 
 
-app.jinja_env.globals.update(getPdf=getPdf)
+app.jinja_env.globals.update(get_pdf=get_pdf)
+
+
+def user_id():
+    if session.get('user'):
+        return session.get('user')['localId']
 
 
 def ensure_logged_in(fn):
@@ -53,16 +62,14 @@ def ensure_logged_in(fn):
 
 def is_my_course(fn):
     @wraps(fn)
-    def wrapper(id, *args, **kwargs):
+    def test(id, *args, **kwargs):
         course_json = dbc.collection('courses').document(id).get()
         course = course_json.to_dict()
-        if session.get("user")['localId'] != course['created_by']:
+        if user_id() != course['created_by']:
             flash("Ce n'est pas l'un de vos cours !")
             return redirect(url_for('profile'))
         return fn(id, *args, **kwargs)
-    return wrapper
-
-# PAGE D'ACCUEIL
+    return test
 
 
 @app.route('/home')
@@ -71,10 +78,9 @@ def home():
     return render_template("home.html")
 
 
-# GESTION DE L'UTILISATEUR
-
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
+    """function for signin"""
     if session.get('user'):
         return redirect(url_for('profile'))
 
@@ -92,6 +98,7 @@ def signin():
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
+    """function for create an account"""
     if session.get('user'):
         return redirect(url_for('profile'))
 
@@ -102,7 +109,6 @@ def signup():
                 email=request.form['email'],
                 password=request.form['password']
             )
-            flash(user)
             db.child('users').child(user['localId']).set({
                 'firstname': request.form['firstname'],
                 'lastname': request.form['lastname'],
@@ -129,35 +135,34 @@ def signout():
 @app.route('/profile', methods=['GET'])
 @ensure_logged_in
 def profile():
+    """function for see your profile"""
     categories = db.child('categories').get().val()
-    user_id = session.get("user")['localId']
-    user = db.child('users').child(user_id).get().val()
-    link = storage.child(f"profile_pictures/{user_id}").get_url(None)
+    user = db.child('users').child(user_id()).get().val()
+    link = storage.child(f"profile_pictures/{user_id()}").get_url(None)
     courses = dbc.collection(u'courses').where(
-        u'created_by', u'==', user_id).order_by(u'date', direction=firestore.Query.DESCENDING).get()
+        u'created_by', u'==', user_id()).order_by(u'date', direction=firestore.Query.DESCENDING).get()
     try:
-        storage.child(f"profile_pictures/{user_id}").download('', 'image')
+        storage.child(f"profile_pictures/{user_id()}").download('', 'image')
         os.remove('image')
         image_exist = True
     except:
         image_exist = False
 
-    flash(image_exist)
-    flash(f'{session.get("user")}')
-    return render_template("profile/profile.html", user=user, image=link, image_exist=image_exist, courses=courses, user_id=user_id, categories = categories)
+    return render_template("profile/profile.html", user=user, image=link, image_exist=image_exist, courses=courses, user_id=user_id, categories=categories)
 
 
 @app.route('/profile/modify', methods=['GET', 'POST', 'PUT'])
 @ensure_logged_in
 def modify_profile():
-    user = db.child('users').child(session.get("user")['localId']).get().val()
+    """function for modify your profile"""
+    user = db.child('users').child(user_id()).get().val()
     form = ProfileForm()
     form.lastname.data = user['lastname']
     form.firstname.data = user['firstname']
     form.description.data = user['description']
     if form.validate_on_submit():
         try:
-            db.child('users').child(session.get("user")['localId']).update({
+            db.child('users').child(user_id()).update({
                 'firstname': request.form['firstname'],
                 'lastname': request.form['lastname'],
                 'description': request.form['description']
@@ -178,15 +183,11 @@ def modify_profile():
 @app.route('/delete', methods=['GET', 'POST'])
 @ensure_logged_in
 def delete():
-    user_id = session.get("user")['localId']
-    link = f'profile_pictures/{user_id}'
-    bucket_name = "flask-ed7bc.appspot.com"
-    storage_client = storage_cloud.Client()
+    """function for delete your profile"""
+    link = f'profile_pictures/{user_id()}'
     if request.method == "POST":
-        bucket = storage_client.bucket(bucket_name)
-        blob = bucket.blob(link)
-        blob.delete()
-        db.child('users').child(session.get("user")['localId']).remove()
+        bucket.blob(link).delete()
+        db.child('users').child(user_id()).remove()
         user = auth.current_user['localId']
         auth_admin.delete_user(user)
         session.clear()
@@ -195,12 +196,10 @@ def delete():
     return render_template("auth/delete.html")
 
 
-# GESTION DES COURS
-
-# CREER LE COURS
 @app.route('/course/create', methods=['GET', 'POST'])
 @ensure_logged_in
 def create_course():
+    """function for create a course"""
     form = CourseForm()
     categories = db.child('categories').get().val()
     form.category.choices = categories
@@ -213,7 +212,7 @@ def create_course():
                 u'title': request.form['title'],
                 u'resume': request.form['resume'],
                 u'category': request.form['category'],
-                u'created_by': session.get("user")['localId'],
+                u'created_by': user_id(),
                 u'date': datetime.datetime.utcnow(),
                 u'public': form.data.get('public'),
                 u'image_link': refImage['name']
@@ -228,29 +227,25 @@ def create_course():
     return render_template("course/create_course.html", form=form)
 
 
-# SUPPRIMER LE COURS
 @app.route('/course/delete/<id>', methods=['GET', 'POST'])
 @ensure_logged_in
 @is_my_course
 def delete_course(id):
+    """function for delete a course"""
     link = f'courses/{id}'
-    bucket_name = "flask-ed7bc.appspot.com"
-    storage_client = storage_cloud.Client()
     if request.method == "POST":
         dbc.collection(u'courses').document(id).delete()
-        bucket = storage_client.bucket(bucket_name)
-        blob = bucket.blob(link)
-        blob.delete()
+        bucket.blob(link).delete()
         flash("Votre fichier a bien été supprimé.")
         return redirect(url_for('profile'))
     return render_template("course/delete_course.html")
 
 
-# MODIFIER LE COURS
 @app.route('/course/modify/<id>', methods=['GET', 'POST'])
 @ensure_logged_in
 @is_my_course
 def modify_course(id):
+    """function for modify a course"""
     course = dbc.collection(u'courses').document(id).get().to_dict()
     form = CourseForm()
     form.submit.data = "Modifier le cours"
@@ -269,7 +264,7 @@ def modify_course(id):
                 u'title': request.form['title'],
                 u'resume': request.form['resume'],
                 u'category': request.form['category'],
-                u'created_by': session.get("user")['localId'],
+                u'created_by': user_id(),
                 u'date': datetime.datetime.utcnow(),
                 u'public': form.data.get('public'),
                 u'image_link': refImage['name']
@@ -283,47 +278,47 @@ def modify_course(id):
     return render_template("course/modify_course.html", form=form)
 
 
-# VOIR LE COURS
 @app.route('/course/view/<id>', methods=['GET', 'POST'])
 @ensure_logged_in
+@is_my_course
 def view_course(id):
+    """function for see a course"""
     course = dbc.collection('courses').document(id).get().to_dict()
-
     return render_template("course/view_course.html", course=course)
 
 
-# CATEGORIES
 @app.route('/profile/courses/<category>', methods=['GET', 'POST'])
 @ensure_logged_in
 def profile_courses_categories(category):
-        user_id = session.get("user")['localId']
-        categories = db.child('categories').get().val()
-        courses = dbc.collection(u'courses').where(u'created_by', u'==', user_id).where(u'category', u'==', category).order_by(u'date', direction=firestore.Query.DESCENDING).get()
-       
-        return render_template(f"profile/courses_categories.html", courses=courses, category=category, categories=categories)
+    """function for all your courses by category"""
+    user_id = user_id()
+    categories = db.child('categories').get().val()
+    courses = dbc.collection(u'courses').where(u'created_by', u'==', user_id).where(
+        u'category', u'==', category).order_by(u'date', direction=firestore.Query.DESCENDING).get()
 
-
-# PUBLIC (cours et catégories)
+    return render_template(f"profile/courses_categories.html", courses=courses, category=category, categories=categories)
 
 
 @app.route('/public/courses/', methods=['GET', 'POST'])
 @ensure_logged_in
 def public_courses():
-        categories = db.child('categories').get().val()
-        courses = dbc.collection(u'courses').where(u'public', u'==', True).order_by(u'date', direction=firestore.Query.DESCENDING).get()
-       
-        return render_template(f"course/public_courses.html", courses=courses, categories=categories)
+    """function for all public courses"""
+    categories = db.child('categories').get().val()
+    courses = dbc.collection(u'courses').where(u'public', u'==', True).order_by(
+        u'date', direction=firestore.Query.DESCENDING).get()
 
-# CATEGORIES
+    return render_template(f"course/public_courses.html", courses=courses, categories=categories)
+
 
 @app.route('/public/courses/<category>', methods=['GET', 'POST'])
 @ensure_logged_in
 def public_courses_categories(category):
-        user_id = session.get("user")['localId']
-        categories = db.child('categories').get().val()
-        courses = dbc.collection(u'courses').where(u'public', u'==', True).where(u'category', u'==', category).order_by(u'date', direction=firestore.Query.DESCENDING).get()
-       
-        return render_template(f"public/courses_categories.html", courses=courses, category=category, categories=categories)
+    """function for all public courses by category"""
+    categories = db.child('categories').get().val()
+    courses = dbc.collection(u'courses').where(u'public', u'==', True).where(
+        u'category', u'==', category).order_by(u'date', direction=firestore.Query.DESCENDING).get()
+
+    return render_template(f"public/courses_categories.html", courses=courses, category=category, categories=categories)
 
 
 if __name__ == "__main__":
