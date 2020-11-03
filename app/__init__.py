@@ -102,12 +102,14 @@ def signup():
                 email=request.form['email'],
                 password=request.form['password']
             )
+            flash(user)
             db.child('users').child(user['localId']).set({
                 'firstname': request.form['firstname'],
                 'lastname': request.form['lastname'],
                 'description': request.form['description'],
                 'email': request.form['email']
             })
+            auth.send_email_verification(user['idToken'])
             link = request.files.get('image', False)
             if link:
                 storage.child(f'profile_pictures/{user["localId"]}').put(link)
