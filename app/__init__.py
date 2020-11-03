@@ -127,6 +127,7 @@ def signout():
 @app.route('/profile', methods=['GET'])
 @ensure_logged_in
 def profile():
+    categories = db.child('categories').get().val()
     user_id = session.get("user")['localId']
     user = db.child('users').child(user_id).get().val()
     link = storage.child(f"profile_pictures/{user_id}").get_url(None)
@@ -141,7 +142,7 @@ def profile():
 
     flash(image_exist)
     flash(f'{session.get("user")}')
-    return render_template("profile.html", user=user, image=link, image_exist=image_exist, courses=courses, user_id=user_id)
+    return render_template("profile/profile.html", user=user, image=link, image_exist=image_exist, courses=courses, user_id=user_id, categories = categories)
 
 
 @app.route('/profile/modify', methods=['GET', 'POST', 'PUT'])
@@ -290,43 +291,14 @@ def view_course(id):
 
 
 # CATEGORIES
-@app.route('/course/informatique/', methods=['GET', 'POST'])
+@app.route('/profile/courses/<category>', methods=['GET', 'POST'])
 @ensure_logged_in
-def category_info():
+def profile_courses_categories(category):
         user_id = session.get("user")['localId']
-        courses = dbc.collection(u'courses').where(u'created_by', u'==', user_id).where(u'category', u'==', u'Informatique').order_by(u'date', direction=firestore.Query.DESCENDING).get()
+        categories = db.child('categories').get().val()
+        courses = dbc.collection(u'courses').where(u'created_by', u'==', user_id).where(u'category', u'==', category).order_by(u'date', direction=firestore.Query.DESCENDING).get()
        
-        return render_template("categories/informatique.html", courses=courses)
-
-
-@app.route('/course/science/', methods=['GET', 'POST'])
-@ensure_logged_in
-def category_science():
-        user_id = session.get("user")['localId']
-        courses = dbc.collection(u'courses').where(u'created_by', u'==', user_id).where(u'category', u'==', u'Sciences').order_by(u'date', direction=firestore.Query.DESCENDING).get()
-        return render_template("categories/science.html", courses=courses)
-
-
-
-
-@app.route('/course/history', methods=['GET', 'POST'])
-@ensure_logged_in
-def category_history():
-        user_id = session.get("user")['localId']
-        courses = dbc.collection(u'courses').where(u'created_by', u'==', user_id).where(u'category', u'==', u'Histoire').order_by(u'date', direction=firestore.Query.DESCENDING).get()
-        return render_template("categories/history.html", courses=courses)
-
-
-
-
-@app.route('/course/medecine', methods=['GET', 'POST'])
-@ensure_logged_in
-def category_medecine():
-        user_id = session.get("user")['localId']
-        courses = dbc.collection(u'courses').where(u'created_by', u'==', user_id).where(u'category', u'==', u'Médecine').order_by(u'date', direction=firestore.Query.DESCENDING).get()
-
-        return render_template("categories/medecine.html", courses=courses)
-
+        return render_template(f"profile/courses_categories.html", courses=courses, category=category, categories=categories)
 
 
 

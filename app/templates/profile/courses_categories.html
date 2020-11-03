@@ -7,7 +7,7 @@
 <!-- Header -->
 <header id="header" class="alt">
 	<div class="inner">
-		<h1>Informatique</h1>
+		<h1>{{category}}</h1>
 		<h2>Retrouvez vos cours d'informatique en dessous !</h2>
 		<div class="container text-center my-5">
 			<a href="{{ url_for('profile')}}" class="btn btn-outline-dark text-center" role="button"
@@ -19,29 +19,23 @@
 
 
 
-	<div class="container table-responsive my-5">
-		<table class="table">
-			<thead>
-			  <tr>
-				<th scope="col">
-				   <a href="{{ url_for('category_info')}}">Informatique</a>
-				</th>
-				<th scope="col">
-					<a href="{{ url_for('category_science')}}">Sciences</a>
-				</th>
-				<th scope="col">
-					<a href="{{ url_for('category_history')}}">Histoire</a>
-				</th>
-				<th scope="col">
-					<a href="{{ url_for('category_medecine')}}">Médecine</a>
-				</th>
-			  </tr>
-			</thead>
-		  </table>
-		</div>
+<div class="container table-responsive my-5">
+	<table class="table">
+		<thead>
+		  <tr>
+			{% for category in categories %}
+			{% set category = category %}
+			<th scope="col">
+			   <a href="{{ url_for('profile_courses_categories', category=category )}}">{{category}}</a>
+			</th>
+			{% endfor %}
+		  </tr>
+		</thead>
+	  </table>
+	</div
 
 	<div class="container">
-		<section class="articles my-5 text-center">
+		<section class="articles my-5 text-center my-5">
 			<div class="row">
 				{% for course in courses %}
 					{% set id_course = course.id %}
