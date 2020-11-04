@@ -43,10 +43,10 @@ class CourseForm(FlaskForm):
     title = StringField('Le titre de votre cours', validators=[DataRequired()])
     resume = StringField('Un petit résumé',  widget=TextArea(), validators=[
                          DataRequired(), Length(max=256)])
-    course = FileField('Votre cours', validators=[DataRequired(),
-                                                  FileAllowed(
-                                                      ['pdf'], 'Pdf uniquement !')
-                                                  ])
+    course = FileField('Votre cours', validators=[
+        FileAllowed(
+            ['pdf'], 'Pdf uniquement !')
+    ])
     category = SelectField('Catégorie', choices=[])
     public = BooleanField(
         'Voulez vous rendre public ce cours ?', default=True,

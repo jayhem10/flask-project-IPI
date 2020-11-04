@@ -39,7 +39,7 @@ bucket = storage_client.bucket(BUCKET_NAME)
 
 
 def get_pdf(link):
-    return storage.child(f"{link}").get_url(None)
+    return storage.child(f"courses/{link}").get_url(None)
 
 
 app.jinja_env.globals.update(get_pdf=get_pdf)
@@ -213,21 +213,25 @@ def create_course():
     form.category.choices = categories
     if form.validate_on_submit():
         try:
-            ref = dbc.collection('courses').document()
-            refImage = storage.child(
-                f'courses/{ref.id}').put(request.files['course'])
-            ref.set({
-                u'title': request.form['title'],
-                u'resume': request.form['resume'],
-                u'category': request.form['category'],
-                u'created_by': user_id(),
-                u'date': datetime.datetime.utcnow(),
-                u'public': form.data.get('public'),
-                u'image_link': refImage['name']
-            })
+            link = request.files.get('course', False)
+            if link:
+                ref = dbc.collection('courses').document()
+                storage.child(
+                    f'courses/{ref.id}').put(request.files['course'])
+                ref.set({
+                    u'title': request.form['title'],
+                    u'resume': request.form['resume'],
+                    u'category': request.form['category'],
+                    u'created_by': user_id(),
+                    u'date': datetime.datetime.utcnow(),
+                    u'public': form.data.get('public')
+                })
 
-            flash('Votre cours un bien été créé')
-            return redirect(url_for('profile'))
+                flash('Votre cours un bien été créé')
+                return redirect(url_for('profile'))
+
+            else:
+                form.course.errors = ['Ce champs est obligatoire !']
         except:
             flash(
                 'Une erreur est survenue lors de la création de votre cours, veillez réessayer')
@@ -266,16 +270,17 @@ def modify_course(id):
     if form.validate_on_submit():
         try:
             ref = dbc.collection('courses').document(id)
-            refImage = storage.child(
-                f'courses/{ref.id}').put(request.files['course'])
+            link = request.files.get('course', False)
+            if link:
+                storage.child(
+                    f'courses/{ref.id}').put(request.files['course'])['name']
             ref.update({
                 u'title': request.form['title'],
                 u'resume': request.form['resume'],
                 u'category': request.form['category'],
                 u'created_by': user_id(),
                 u'date': datetime.datetime.utcnow(),
-                u'public': form.data.get('public'),
-                u'image_link': refImage['name']
+                u'public': form.data.get('public')
             })
 
             flash("Votre cours a bien été modifié.")
@@ -291,7 +296,7 @@ def modify_course(id):
 @is_my_course
 def view_course(id):
     """function for see a course"""
-    course = dbc.collection('courses').document(id).get().to_dict()
+    course = dbc.collection('courses').document(id).get()
     return render_template("course/view_course.html", course=course)
 
 

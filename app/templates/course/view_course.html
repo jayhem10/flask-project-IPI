@@ -3,7 +3,8 @@
 {% block title %} Index {% endblock %}
 
 {% block content %}
-
+{% set id_course = course.id %}
+{% set course = course.to_dict() %}
 <h1 class="text-center my-5">{{course['title']}}</h1>
 {% with messages = get_flashed_messages() %}
   {% if messages %}
@@ -16,7 +17,7 @@
 {% endwith %}
 
 <div class="container text-center">
-<embed class="" src="{{get_pdf(course['image_link'])}}" width=800 height=500 type='application/pdf'/>
+<embed class="" src="{{get_pdf(id_course)}}" width=800 height=500 type='application/pdf'/>
 </div>
 
 

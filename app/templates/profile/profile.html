@@ -67,7 +67,7 @@
 							<h4>{{course['category']}}</h4>
 							<div class="metadata">{{course['date'].strftime("%d/%m/%Y à %Hh%M")}}</div>
 							<div class="content">
-							<embed src={{get_pdf(course['image_link'])}} width="auto" height="375">
+							<embed src={{get_pdf(id_course)}} width="auto" height="375">
 								<div> {{course['resume']}}</div>
 								<div>Note</div>
 								<div class="icons">
