@@ -89,10 +89,17 @@ def signin():
         try:
             login = auth.sign_in_with_email_and_password(
                 request.form['email'], request.form['password'])
-            session['user'] = login
-            return redirect(url_for('profile'))
+            email_verified = auth.get_account_info(
+                login['idToken'])['users'][0]['emailVerified']
+            if email_verified:
+                session['user'] = login
+                return redirect(url_for('profile'))
+            else:
+                flash(
+                    'Vous devez vérifier votre adresse mail ! (Pensez à vérifier vos courriers indésirables)')
+
         except:
-            flash('Une erreur est survenue lors de la connexion')
+            flash('L\'adresse mail et/ou le mot de passe est incorect')
     return render_template("auth/signin.html", form=form)
 
 
@@ -119,7 +126,8 @@ def signup():
             link = request.files.get('image', False)
             if link:
                 storage.child(f'profile_pictures/{user["localId"]}').put(link)
-            flash('Votre compte a bien été créé, connectez-vous !')
+            flash(
+                'Votre compte a bien été créé, un email vous a été envoyé sur votre adresse mail !')
             return redirect(url_for('signin'))
         except:
             flash('Une erreur est survenue lors de la création de votre compte')
