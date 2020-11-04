@@ -17,11 +17,13 @@ V1 :
 
   - [x] See profile with data User
   - [x] See profile with data Course
+  - [x] Modify profile
 
-- [ ] COURSE
+- [] COURSE
   - [x] Create course
   - [x] Delete course
-  - [ ] Modify course
+  - [x] Modify course
+  - [] View course
   - [x] Order by category
   - [x] Add test if it's our course
 
