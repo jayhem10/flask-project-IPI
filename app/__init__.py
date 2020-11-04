@@ -55,7 +55,7 @@ def ensure_logged_in(fn):
     def wrapper(*args, **kwargs):
         if not session.get('user'):
             flash("Connecte toi pour pouvoir accéder à cette page")
-            return redirect(url_for('signin'))
+            return redirect(url_for('signin', next=request.url))
         return fn(*args, **kwargs)
     return wrapper
 
@@ -83,7 +83,6 @@ def signin():
     """function for signin"""
     if session.get('user'):
         return redirect(url_for('profile'))
-
     form = SigninForm()
     if form.validate_on_submit():
         try:
@@ -93,6 +92,9 @@ def signin():
                 login['idToken'])['users'][0]['emailVerified']
             if email_verified:
                 session['user'] = login
+                next_url = request.form.get("next")
+                if next_url:
+                    return redirect(next_url)
                 return redirect(url_for('profile'))
             else:
                 flash(
@@ -100,6 +102,7 @@ def signin():
 
         except:
             flash('L\'adresse mail et/ou le mot de passe est incorect')
+
     return render_template("auth/signin.html", form=form)
 
 
@@ -332,6 +335,11 @@ def public_courses_categories(category):
         u'category', u'==', category).order_by(u'date', direction=firestore.Query.DESCENDING).get()
 
     return render_template(f"public/courses_categories.html", courses=courses, category=category, categories=categories)
+
+
+@app.errorhandler(404)
+def invalid_route(e):
+    return render_template("error404.html")
 
 
 if __name__ == "__main__":

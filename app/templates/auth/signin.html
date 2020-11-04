@@ -18,7 +18,7 @@
 	{{ form.hidden_tag() }}
 	<div class='' > 
 		<p>
-		
+			<input type="hidden" name="next" value="{{ request.args.get('next', '') }}"/>
 			{{ form.email.label }}<br>
 			{{ form.email(size=16) }}<br>
 			{% for errors in form.email.errors %}
