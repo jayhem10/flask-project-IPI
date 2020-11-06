@@ -296,7 +296,6 @@ def modify_course(id):
 
 @app.route('/course/view/<id>', methods=['GET', 'POST'])
 @ensure_logged_in
-@is_my_course
 def view_course(id):
     """function for see a course"""
     course = dbc.collection('courses').document(id).get()
