@@ -175,6 +175,21 @@ def profile():
 
     return render_template("profile/profile.html", user=user, image=link, image_exist=image_exist, courses=courses, user_id=user_id, categories=categories)
 
+@app.route('/profile/courses', methods=['GET'])
+@ensure_logged_in
+def my_courses():
+    """function for see your profile"""
+    categories = db.child('categories').get().val()
+    user = db.child('users').child(user_id()).get().val()
+    link = storage.child(f"profile_pictures/{user_id()}").get_url(None)
+    courses = dbc.collection(u'courses').where(
+        u'created_by', u'==', user_id()).order_by(u'date', direction=firestore.Query.DESCENDING).get()
+
+
+    return render_template("profile/my_courses.html", user=user, courses=courses, user_id=user_id, categories=categories)
+
+
+
 
 @app.route('/profile/modify', methods=['GET', 'POST', 'PUT'])
 @ensure_logged_in
@@ -245,7 +260,7 @@ def create_course():
                 })
 
                 flash('Votre cours un bien été créé')
-                return redirect(url_for('profile'))
+                return redirect(url_for('my_courses'))
 
             else:
                 form.course.errors = ['Ce champs est obligatoire !']
@@ -266,7 +281,7 @@ def delete_course(id):
         dbc.collection(u'courses').document(id).delete()
         bucket.blob(link).delete()
         flash("Votre fichier a bien été supprimé.")
-        return redirect(url_for('profile'))
+        return redirect(url_for('my_courses'))
     return render_template("course/delete_course.html")
 
 
@@ -301,7 +316,7 @@ def modify_course(id):
             })
 
             flash("Votre cours a bien été modifié.")
-            return redirect(url_for('profile'))
+            return redirect(url_for('my_courses'))
         except:
             flash(
                 'Une erreur est survenue lors de la modification de votre cours, veillez réessayer')
