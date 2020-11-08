@@ -189,7 +189,7 @@ def my_courses():
         u'created_by', u'==', user_id()).order_by(u'date', direction=firestore.Query.DESCENDING).get()
 
 
-    return render_template("profile/my_courses.html", user=user, courses=courses, user_id=user_id, categories=categories)
+    return render_template("profile/my_courses.html", courses=courses, categories=categories)
 
 
 
