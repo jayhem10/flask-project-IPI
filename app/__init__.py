@@ -306,9 +306,8 @@ def view_course(id):
 @ensure_logged_in
 def profile_courses_categories(category):
     """function for all your courses by category"""
-    user_id = user_id()
     categories = db.child('categories').get().val()
-    courses = dbc.collection(u'courses').where(u'created_by', u'==', user_id).where(
+    courses = dbc.collection(u'courses').where(u'created_by', u'==', user_id()).where(
         u'category', u'==', category).order_by(u'date', direction=firestore.Query.DESCENDING).get()
 
     return render_template(f"profile/courses_categories.html", courses=courses, category=category, categories=categories)
