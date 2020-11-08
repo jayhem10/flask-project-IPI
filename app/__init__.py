@@ -60,16 +60,17 @@ def ensure_logged_in(fn):
     return wrapper
 
 
-def is_my_course(fn):
+def is_public(fn):
     @wraps(fn)
-    def test(id, *args, **kwargs):
+    def wrapper(id, *args, **kwargs):
         course_json = dbc.collection('courses').document(id).get()
         course = course_json.to_dict()
-        if user_id() != course['created_by']:
-            flash("Ce n'est pas l'un de vos cours !")
-            return redirect(url_for('profile'))
+        if course['public'] != True:
+            if user_id() != course['created_by']:
+                flash("Ce cours n'est pas public !")
+                return redirect(url_for('profile'))
         return fn(id, *args, **kwargs)
-    return test
+    return wrapper
 
 
 @app.route('/home')
@@ -105,6 +106,7 @@ def signin():
 
     return render_template("auth/signin.html", form=form)
 
+
 @app.route('/reset_password', methods=['GET', 'POST'])
 def reset():
     form = ResetPassword()
@@ -113,7 +115,8 @@ def reset():
     if form.validate_on_submit():
         try:
             reset_email = auth.send_password_reset_email(email)
-            flash('Un email vous a été envoyé sur votre boite mail afin de réinitialiser votre mot de passe !')
+            flash(
+                'Un email vous a été envoyé sur votre boite mail afin de réinitialiser votre mot de passe !')
             return redirect(url_for('signin'))
         except:
             flash('Une erreur est survenue lors de la création de votre compte')
@@ -258,7 +261,7 @@ def create_course():
 
 @app.route('/course/delete/<id>', methods=['GET', 'POST'])
 @ensure_logged_in
-@is_my_course
+@is_public
 def delete_course(id):
     """function for delete a course"""
     link = f'courses/{id}'
@@ -272,7 +275,7 @@ def delete_course(id):
 
 @app.route('/course/modify/<id>', methods=['GET', 'POST'])
 @ensure_logged_in
-@is_my_course
+@is_public
 def modify_course(id):
     """function for modify a course"""
     course = dbc.collection(u'courses').document(id).get().to_dict()
@@ -310,6 +313,7 @@ def modify_course(id):
 
 @app.route('/course/view/<id>', methods=['GET', 'POST'])
 @ensure_logged_in
+@is_public
 def view_course(id):
     """function for see a course"""
     course = dbc.collection('courses').document(id).get()
