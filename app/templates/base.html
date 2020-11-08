@@ -30,17 +30,6 @@
             </li>
             {% endif %}
             {%if session.get('user')%}
-
-            <div class="dropdown nav-item">
-              <a class="btn  dropdown-toggle pr-5 mr-3" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
-              aria-haspopup="true" aria-expanded="false">
-              <i class="far fa-user fa-3x"></i>              
-            </a>
-              <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                <a class="nav-link drop" href="{{ url_for('profile') }}">Mon profil</a>
-                <a class="nav-link drop" href="{{ url_for('signout') }}">Logout</a>
-              </div>
-            </div>
             <div class="dropdown nav-item">
               <a class="btn  dropdown-toggle pr-5 mr-3"  href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
               aria-haspopup="true" aria-expanded="false">
@@ -52,7 +41,17 @@
                 <a class="nav-link drop" href="{{ url_for('public_courses') }}">Tous les cours</a>
               </div>
             </div>
-            
+            <div class="dropdown nav-item">
+              <a class="btn  dropdown-toggle pr-5 mr-3" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">
+              <i class="far fa-user fa-3x"></i>              
+            </a>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                <a class="nav-link drop" href="{{ url_for('profile') }}">Mon profil</a>
+                <a class="nav-link drop" href="{{ url_for('signout') }}">Logout</a>
+              </div>
+            </div>
+          
             {% endif %}
             <li class="nav-item active">
               <a class="nav-link" href="#">Infos</a>
