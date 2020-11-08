@@ -11,7 +11,7 @@ V1 :
   - [x] Signin
   - [x] Signout
   - [x] Send email verification
-  - [ ] Send reset password
+  - [x] Send reset password
   - [x] Delete user
 - [x] Profile
 
@@ -19,11 +19,11 @@ V1 :
   - [x] See profile with data Course
   - [x] Modify profile
 
-- [] COURSE
+- [x] COURSE
   - [x] Create course
   - [x] Delete course
   - [x] Modify course
-  - [] View course
+  - [x] View course
   - [x] Order by category
   - [x] Add test if it's our course
 
