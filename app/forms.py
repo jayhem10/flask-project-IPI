@@ -52,3 +52,8 @@ class CourseForm(FlaskForm):
         'Voulez vous rendre public ce cours ?', default=True,
         render_kw={'checked': ''})
     submit = SubmitField('Ajouter le cours')
+
+
+class ResetPassword(FlaskForm):
+    email = StringField('Adresse mail', validators=[DataRequired(), Email()])
+    submit = SubmitField('Envoyer le mail')

@@ -7,7 +7,7 @@ from functools import wraps
 from firebase_admin import credentials, auth as auth_admin, firestore
 from flask import Flask, render_template, url_for, flash, request, session, redirect
 from flask_wtf.csrf import CSRFProtect
-from app.forms import SigninForm, SignupForm, ProfileForm, CourseForm
+from app.forms import SigninForm, SignupForm, ProfileForm, CourseForm, ResetPassword
 from google.cloud import storage as storage_cloud
 
 
@@ -104,6 +104,20 @@ def signin():
             flash('L\'adresse mail et/ou le mot de passe est incorect')
 
     return render_template("auth/signin.html", form=form)
+
+@app.route('/reset_password', methods=['GET', 'POST'])
+def reset():
+    form = ResetPassword()
+    email = request.form.get("email")
+    # Sending Password reset email
+    if form.validate_on_submit():
+        try:
+            reset_email = auth.send_password_reset_email(email)
+            flash('Un email vous a été envoyé sur votre boite mail afin de réinitialiser votre mot de passe !')
+            return redirect(url_for('signin'))
+        except:
+            flash('Une erreur est survenue lors de la création de votre compte')
+    return render_template("auth/reset_password.html", form=form)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
