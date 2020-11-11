@@ -327,7 +327,7 @@ def courses(privacy, category):
                             total=total, css_framework='bootstrap4')
 #   PAGINATION
 
-    return render_template("course/courses.html", courses=pagination_courses, categories=categories,  page=page, per_page=per_page, pagination=pagination, privacy=privacy)
+    return render_template("course/courses.html", courses=pagination_courses, categories=categories,  page=page, per_page=per_page, pagination=pagination, privacy=privacy, category=category)
 
 
 @app.route('/course/delete/<id>', methods=['GET', 'POST'])

@@ -18,10 +18,18 @@
 <header id="header" class="alt">
 	<div class="inner">
 		{% if privacy=='private' %}
-		<h1>Vos cours</h1>
-		<h2>Visionner et gérer vos cours</h2>
+			{% if category=='aucune'%}
+				<h1>Vos cours</h1>
+			{% else %}
+				<h1>Vos cours : {{category}}</h1>
+			{% endif %}
+			<h2>Visionner et gérer vos cours</h2>
 		{% else %}
-		<h1>Tous les cours sont ici !</h1>
+			{% if category=='aucune'%}
+				<h1>Tous les cours sont ici !</h1>
+			{% else %}
+				<h1>Tous les cours : {{category}}</h1>
+			{% endif %}
 		{% endif %}
 		<div class="container text-center my-5">
 			<a href="{{ url_for('profile')}}" class="btn btn-outline-dark text-center" role="button"
