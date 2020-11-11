@@ -32,8 +32,14 @@
 			{% endif %}
 		{% endif %}
 		<div class="container text-center my-5">
+			{% if category=='aucune'%}
 			<a href="{{ url_for('profile')}}" class="btn btn-outline-dark text-center" role="button"
 				aria-pressed="true">Mon profil</a>
+			{% else %}
+			<a href="{{ url_for('courses', privacy=privacy, category='aucune')}}" class="btn btn-outline-dark text-center" role="button"
+				aria-pressed="true">Retour</a>
+			{% endif %}
+			
 		</div>
 	</div>
 </header>
