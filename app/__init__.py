@@ -49,6 +49,11 @@ def get_pdf(link):
     return storage.child(f"courses/{link}").get_url(None)
 
 
+def get_created_by_name(id):
+    user = db.child('users').child(id).get().val()
+    return user['firstname'] + ' ' + user['lastname']
+
+
 def is_my_course(course_id):
     if course_id == session.get('user')['localId']:
         return True
@@ -56,7 +61,8 @@ def is_my_course(course_id):
         return False
 
 
-app.jinja_env.globals.update(get_pdf=get_pdf, is_my_course=is_my_course)
+app.jinja_env.globals.update(
+    get_pdf=get_pdf, is_my_course=is_my_course, get_created_by_name=get_created_by_name)
 
 
 @app.errorhandler(404)

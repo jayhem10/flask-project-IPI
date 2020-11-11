@@ -6,18 +6,35 @@
 {% set id_course = course.id %}
 {% set course = course.to_dict() %}
 <h1 class="text-center my-5">{{course['title']}}</h1>
+<h3 class="text-center ">{{get_created_by_name(course['created_by'])}}</h3>
 {% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul class="container flashes">
-    {% for message in messages %}
-      <li>{{ message }}</li>
-    {% endfor %}
-    </ul>
-  {% endif %}
+{% if messages %}
+<ul class="container flashes">
+  {% for message in messages %}
+  <li>{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
 {% endwith %}
 
 <div class="container text-center">
-<embed class="" src="{{get_pdf(id_course)}}" width=800 height=500 type='application/pdf'/>
+
+  <articles>
+    <h4>{{course['category']}}</h4>
+    <div class="metadata">{{course['date'].strftime("%d/%m/%Y à %Hh%M")}}</div>
+    <div class="content">
+      <embed src={{get_pdf(id_course)}} width="600" height="375">
+      <div> {{course['resume']}}</div>
+      <div>Note</div>
+      <div class="icons">
+        {% if is_my_course(course['created_by']) %}
+        <a href="{{ url_for('delete_course', id=id_course) }}" class="icon fas fa-trash-alt"></a>
+        <a href="{{ url_for('modify_course', id=id_course ) }}" class="icon fas fa-edit"></a>
+        {% endif %}
+      </div>
+    </div>
+  </articles>
+
 </div>
 
 
