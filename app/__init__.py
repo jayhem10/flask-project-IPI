@@ -5,14 +5,12 @@ import json
 import datetime
 from functools import wraps
 from firebase_admin import credentials, auth as auth_admin, firestore
-from flask import Flask, render_template, url_for, flash, request, session, redirect
+from flask import Flask, render_template, url_for, flash, request, session, redirect, abort
 from flask_wtf.csrf import CSRFProtect
 from app.forms import SigninForm, SignupForm, ProfileForm, CourseForm, ResetPassword
 from google.cloud import storage as storage_cloud
 from flask import Blueprint
 from flask_paginate import Pagination, get_page_parameter, get_page_args
-
-
 
 
 app = Flask(__name__)
@@ -42,16 +40,28 @@ storage_client = storage_cloud.Client()
 bucket = storage_client.bucket(BUCKET_NAME)
 
 
+def user_id():
+    if session.get('user'):
+        return session.get('user')['localId']
+
+
 def get_pdf(link):
     return storage.child(f"courses/{link}").get_url(None)
 
 
-app.jinja_env.globals.update(get_pdf=get_pdf)
+def is_my_course(course_id):
+    if course_id == session.get('user')['localId']:
+        return True
+    else:
+        return False
 
 
-def user_id():
-    if session.get('user'):
-        return session.get('user')['localId']
+app.jinja_env.globals.update(get_pdf=get_pdf, is_my_course=is_my_course)
+
+
+@app.errorhandler(404)
+def invalid_route(e):
+    return render_template("error404.html")
 
 
 def ensure_logged_in(fn):
@@ -75,6 +85,19 @@ def is_public(fn):
                 return redirect(url_for('profile'))
         return fn(id, *args, **kwargs)
     return wrapper
+
+
+def have_access(fn):
+    @wraps(fn)
+    def wrapper(id, *args, **kwargs):
+        course_json = dbc.collection('courses').document(id).get()
+        course = course_json.to_dict()
+        if course['created_by'] != user_id():
+            flash("Ce n'est pas l'un de vos cours !")
+            return redirect(url_for('profile'))
+        return fn(id, *args, **kwargs)
+    return wrapper
+
 
 @app.route('/home')
 @app.route('/')
@@ -167,11 +190,8 @@ def signout():
 @ensure_logged_in
 def profile():
     """function for see your profile"""
-    categories = db.child('categories').get().val()
     user = db.child('users').child(user_id()).get().val()
     link = storage.child(f"profile_pictures/{user_id()}").get_url(None)
-    courses = dbc.collection(u'courses').where(
-        u'created_by', u'==', user_id()).order_by(u'date', direction=firestore.Query.DESCENDING).get()
     try:
         storage.child(f"profile_pictures/{user_id()}").download('', 'image')
         os.remove('image')
@@ -179,32 +199,7 @@ def profile():
     except:
         image_exist = False
 
-    return render_template("profile/profile.html", user=user, image=link, image_exist=image_exist, courses=courses, user_id=user_id, categories=categories)
-
-@app.route('/profile/courses', methods=['GET'])
-@ensure_logged_in
-def my_courses():
-    search = False
-    """function for see your profile"""
-    categories = db.child('categories').get().val()
-    user = db.child('users').child(user_id()).get().val()
-    link = storage.child(f"profile_pictures/{user_id()}").get_url(None)
-    courses = dbc.collection(u'courses').where(
-        u'created_by', u'==', user_id()).order_by(u'date', direction=firestore.Query.DESCENDING).get()
-
-#   PAGINATION
-    page, per_page, offset = get_page_args(page_parameter='page',
-                                           per_page_parameter='per_page')
-    total = len(courses)
-    courses_page = courses[offset: offset + per_page]
-    pagination_courses = courses_page
-    pagination = Pagination(page=page, per_page=per_page, total=total, css_framework='bootstrap4')
-#   PAGINATION
-
-
-    return render_template("profile/my_courses.html", courses=pagination_courses, categories=categories,  page=page, per_page=per_page, pagination=pagination)
-
-
+    return render_template("profile/profile.html", user=user, image=link, image_exist=image_exist, user_id=user_id)
 
 
 @app.route('/profile/modify', methods=['GET', 'POST', 'PUT'])
@@ -236,9 +231,9 @@ def modify_profile():
     return render_template("auth/modify_profile.html", form=form, user=user)
 
 
-@app.route('/delete', methods=['GET', 'POST'])
+@app.route('/profile/delete', methods=['GET', 'POST'])
 @ensure_logged_in
-def delete():
+def delete_profile():
     """function for delete your profile"""
     link = f'profile_pictures/{user_id()}'
     if request.method == "POST":
@@ -276,7 +271,7 @@ def create_course():
                 })
 
                 flash('Votre cours un bien été créé')
-                return redirect(url_for('my_courses'))
+                return redirect(url_for('courses', privacy='private'))
 
             else:
                 form.course.errors = ['Ce champs est obligatoire !']
@@ -287,9 +282,51 @@ def create_course():
     return render_template("course/create_course.html", form=form)
 
 
+@app.route('/courses/<privacy>/<category>', methods=['GET'])
+@ensure_logged_in
+def courses(privacy, category):
+    search = False
+    """function for see your profile"""
+    categories = db.child('categories').get().val()
+    user = db.child('users').child(user_id()).get().val()
+    if privacy == 'private':
+        courses = dbc.collection(u'courses').where(
+            u'created_by', u'==', user_id()).order_by(u'date', direction=firestore.Query.DESCENDING)
+    elif privacy == 'public':
+        courses = dbc.collection(u'courses').where(u'public', u'==', True).order_by(
+            u'date', direction=firestore.Query.DESCENDING)
+    else:
+        abort(404)
+    if category != 'aucune':
+        check_category_exist = False
+        i = 0
+        while i < len(categories) and check_category_exist == False:
+            if categories[i] == category:
+                check_category_exist = True
+            i += 1
+        if check_category_exist == False:
+            abort(404)
+
+        courses = courses.where(u'category', u'==', category)
+
+    courses = courses.get()
+
+#   PAGINATION
+    page, per_page, offset = get_page_args(page_parameter='page',
+                                           per_page_parameter='per_page')
+    total = len(courses)
+    courses_page = courses[offset: offset + per_page]
+    pagination_courses = courses_page
+    pagination = Pagination(page=page, per_page=per_page,
+                            total=total, css_framework='bootstrap4')
+#   PAGINATION
+
+    return render_template("course/courses.html", courses=pagination_courses, categories=categories,  page=page, per_page=per_page, pagination=pagination, privacy=privacy)
+
+
 @app.route('/course/delete/<id>', methods=['GET', 'POST'])
 @ensure_logged_in
-@is_public
+@have_access
 def delete_course(id):
     """function for delete a course"""
     link = f'courses/{id}'
@@ -297,13 +334,13 @@ def delete_course(id):
         dbc.collection(u'courses').document(id).delete()
         bucket.blob(link).delete()
         flash("Votre fichier a bien été supprimé.")
-        return redirect(url_for('my_courses'))
+        return redirect(url_for('courses', privacy='private'))
     return render_template("course/delete_course.html")
 
 
 @app.route('/course/modify/<id>', methods=['GET', 'POST'])
 @ensure_logged_in
-@is_public
+@have_access
 def modify_course(id):
     """function for modify a course"""
     course = dbc.collection(u'courses').document(id).get().to_dict()
@@ -332,7 +369,7 @@ def modify_course(id):
             })
 
             flash("Votre cours a bien été modifié.")
-            return redirect(url_for('my_courses'))
+            return redirect(url_for('my_courses', privacy='private'))
         except:
             flash(
                 'Une erreur est survenue lors de la modification de votre cours, veillez réessayer')
@@ -346,71 +383,6 @@ def view_course(id):
     """function for see a course"""
     course = dbc.collection('courses').document(id).get()
     return render_template("course/view_course.html", course=course)
-
-
-@app.route('/profile/courses/<category>', methods=['GET', 'POST'])
-@ensure_logged_in
-def profile_courses_categories(category):
-    """function for all your courses by category"""
-    categories = db.child('categories').get().val()
-    courses = dbc.collection(u'courses').where(u'created_by', u'==', user_id()).where(
-        u'category', u'==', category).order_by(u'date', direction=firestore.Query.DESCENDING).get()
-
-    #   PAGINATION
-    page, per_page, offset = get_page_args(page_parameter='page',
-                                           per_page_parameter='per_page')
-    total = len(courses)
-    courses_page = courses[offset: offset + per_page]
-    pagination_courses = courses_page
-    pagination = Pagination(page=page, per_page=per_page, total=total, css_framework='bootstrap4')
-    #   PAGINATION
-
-    return render_template(f"profile/courses_categories.html", courses=pagination_courses, category=category, categories=categories, page=page, per_page=per_page, pagination=pagination)
-
-
-@app.route('/public/courses/', methods=['GET', 'POST'])
-@ensure_logged_in
-def public_courses():
-    """function for all public courses"""
-    categories = db.child('categories').get().val()
-    courses = dbc.collection(u'courses').where(u'public', u'==', True).order_by(
-        u'date', direction=firestore.Query.DESCENDING).get()
-
-#   PAGINATION
-    page, per_page, offset = get_page_args(page_parameter='page',
-                                           per_page_parameter='per_page')
-    total = len(courses)
-    courses_page = courses[offset: offset + per_page]
-    pagination_courses = courses_page
-    pagination = Pagination(page=page, per_page=per_page, total=total, css_framework='bootstrap4')
-#   PAGINATION
-
-    return render_template(f"course/public_courses.html", courses=pagination_courses, categories=categories, page=page, per_page=per_page, pagination=pagination)
-
-
-@app.route('/public/courses/<category>', methods=['GET', 'POST'])
-@ensure_logged_in
-def public_courses_categories(category):
-    """function for all public courses by category"""
-    categories = db.child('categories').get().val()
-    courses = dbc.collection(u'courses').where(u'public', u'==', True).where(
-        u'category', u'==', category).order_by(u'date', direction=firestore.Query.DESCENDING).get()
-
-    #  PAGINATION
-    page, per_page, offset = get_page_args(page_parameter='page',
-                                           per_page_parameter='per_page')
-    total = len(courses)
-    courses_page = courses[offset: offset + per_page]
-    pagination_courses = courses_page
-    pagination = Pagination(page=page, per_page=per_page, total=total, css_framework='bootstrap4')
-    #  PAGINATION
-
-    return render_template(f"public/courses_categories.html", courses=pagination_courses, category=category, categories=categories, page=page, per_page=per_page, pagination=pagination)
-
-
-@app.errorhandler(404)
-def invalid_route(e):
-    return render_template("error404.html")
 
 
 if __name__ == "__main__":

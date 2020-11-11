@@ -5,14 +5,14 @@
 {% block content %}
 
 {% with messages = get_flashed_messages() %}
-  {% if messages %}
-  <div class="alert alert-info" role="alert">
+{% if messages %}
+<div class="alert alert-info" role="alert">
 	{% for message in messages %}
-		<li>{{ message }}</li>
-    {% endfor %}
+	<li>{{ message }}</li>
+	{% endfor %}
 </div>
-  {% endif %}
-  {% endwith %}
+{% endif %}
+{% endwith %}
 
 <!-- Header -->
 <header id="header" class="alt">
@@ -34,17 +34,17 @@
 	<div class="container table-responsive">
 		<table class="table">
 			<thead>
-			  <tr>
-				{% for category in categories %}
-				{% set category = category %}
-				<th scope="col">
-				   <a  href="{{ url_for('profile_courses_categories', category=category )}}">{{category}}</a>
-				</th>
-				{% endfor %}
-			  </tr>
+				<tr>
+					{% for category in categories %}
+					{% set category = category %}
+					<th scope="col">
+						<a href="{{ url_for('courses',privacy=privacy, category=category )}}">{{category}}</a>
+					</th>
+					{% endfor %}
+				</tr>
 			</thead>
-		  </table>
-		</div>
+		</table>
+	</div>
 
 	<div class="container">
 		<section class="articles my-5 text-center">
@@ -55,26 +55,30 @@
 			</div>
 			<div class="row">
 				{% for course in courses %}
-					{% set id_course = course.id %}
-					{% set course = course.to_dict() %}
-					<div class="col-12 col-lg-6 col-sm-12">
-						<articles>
-							<h3 class="mt-5 text-break">{{course['title']}}</h3>
-							<h4>{{course['category']}}</h4>
-							<div class="metadata">{{course['date'].strftime("%d/%m/%Y à %Hh%M")}}</div>
-							<div class="content">
+				{% set id_course = course.id %}
+				{% set course = course.to_dict() %}
+				<div class="col-12 col-lg-6 col-sm-12">
+					<articles>
+						<h3 class="mt-5 text-break">{{course['title']}}</h3>
+						<h4>{{course['category']}}</h4>
+						<div class="metadata">{{course['date'].strftime("%d/%m/%Y à %Hh%M")}}</div>
+						<div class="content">
 							<embed src={{get_pdf(id_course)}} width="auto" height="375">
-								<div> {{course['resume']}}</div>
-								<div>Note</div>
-								<div class="icons">
-								<a href="{{ url_for('view_course', id=id_course )}}" class="button big">lire la fiche</a>
-								<a href="{{ url_for('delete_course', id=id_course) }}" class="icon fas fa-trash-alt"></a>
+							<div> {{course['resume']}}</div>
+							<div>Note</div>
+							<div class="icons">
+								<a href="{{ url_for('view_course', id=id_course )}}" class="button big">lire la
+									fiche</a>
+								{% if is_my_course(course['created_by']) %}
+								<a href="{{ url_for('delete_course', id=id_course) }}"
+									class="icon fas fa-trash-alt"></a>
 								<a href="{{ url_for('modify_course', id=id_course ) }}" class="icon fas fa-edit"></a>
+								{% endif %}
 							</div>
-							</div>
-						</articles>
-					</div>
-                {% endfor %}
+						</div>
+					</articles>
+				</div>
+				{% endfor %}
 			</div>
 		</section>
 	</div>
@@ -88,7 +92,7 @@
 			{{ pagination.info }}
 		</div>
 	</div>
-	
+
 
 
 
@@ -110,13 +114,13 @@
 
 <!-- DEBUG -->
 {% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul class="flashes">
-    {% for message in messages %}
-      <li>{{ message }}</li>
-    {% endfor %}
-    </ul>
-  {% endif %}
+{% if messages %}
+<ul class="flashes">
+	{% for message in messages %}
+	<li>{{ message }}</li>
+	{% endfor %}
+</ul>
+{% endif %}
 {% endwith %}
 
 </body>

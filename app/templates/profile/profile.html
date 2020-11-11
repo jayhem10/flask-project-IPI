@@ -5,14 +5,14 @@
 {% block content %}
 
 {% with messages = get_flashed_messages() %}
-  {% if messages %}
-  <div class="alert alert-info" role="alert">
+{% if messages %}
+<div class="alert alert-info" role="alert">
 	{% for message in messages %}
-		<li>{{ message }}</li>
-    {% endfor %}
+	<li>{{ message }}</li>
+	{% endfor %}
 </div>
-  {% endif %}
-  {% endwith %}
+{% endif %}
+{% endwith %}
 
 
 <!-- Header -->
@@ -32,18 +32,18 @@
 
 	<!-- Banner -->
 	<section id="intro" class="main">
-		<img src="{{image if image_exist else url_for('static', filename='images/profile.jpg')}}" width="250px" height="auto" class="mb-3"
-			alt="">
+		<img src="{{image if image_exist else url_for('static', filename='images/profile.jpg')}}" width="250px"
+			height="auto" class="mb-3" alt="">
 		<h2>{{user.firstname}} {{user.lastname}}</h2>
 		<p>{{user.description}}</p>
 		<ul class="actions">
 			<li><a href="{{ url_for('modify_profile')}}" class="button big">Modifier mon profil</a></li>
-			<li><a href="{{ url_for('delete') }}" class="button big">Supprimer mon compte</a></li>
+			<li><a href="{{ url_for('delete_profile') }}" class="button big">Supprimer mon compte</a></li>
 		</ul>
-		<a href="{{ url_for('my_courses') }}" class="button big">Mes cours</a>
+		<a href="{{ url_for('courses', privacy='private', category='aucune') }}" class="button big">Mes cours</a>
 
 	</section>
-	
+
 
 
 
