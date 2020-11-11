@@ -22,8 +22,8 @@
   <articles>
     <h4>{{course['category']}}</h4>
     <div class="metadata">{{course['date'].strftime("%d/%m/%Y à %Hh%M")}}</div>
-    <div class="content">
-      <embed src={{get_pdf(id_course)}} width="600" height="375">
+    <div class="content m-5">
+      <iframe id="pdfviewer" src={{get_pdf(id_course)}} frameborder="0" width="100%" height="100%"></iframe>
       <div> {{course['resume']}}</div>
       <div>Note</div>
       <div class="icons">
