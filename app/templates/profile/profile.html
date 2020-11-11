@@ -3,15 +3,18 @@
 {% block title %} Index {% endblock %}
 
 {% block content %}
+
 {% with messages = get_flashed_messages() %}
   {% if messages %}
-    <ul class="flashes">
-    {% for message in messages %}
-      <li>{{ message }}</li>
+  <div class="alert alert-info" role="alert">
+	{% for message in messages %}
+		<li>{{ message }}</li>
     {% endfor %}
-    </ul>
+</div>
   {% endif %}
-{% endwith %}
+  {% endwith %}
+
+
 <!-- Header -->
 <header id="header" class="alt">
 	<div class="inner">
@@ -61,17 +64,6 @@
 
 </div>
 
-
-<!-- DEBUG -->
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul class="flashes">
-    {% for message in messages %}
-      <li>{{ message }}</li>
-    {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
 
 </body>
 

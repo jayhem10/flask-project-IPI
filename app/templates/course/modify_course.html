@@ -7,13 +7,13 @@
 <h1 class="text-center my-5">Modification du cours</h1>
 {% with messages = get_flashed_messages() %}
   {% if messages %}
-    <ul class="container flashes">
-    {% for message in messages %}
-      <li>{{ message }}</li>
+  <div class="alert alert-info" role="alert">
+	{% for message in messages %}
+		<li>{{ message }}</li>
     {% endfor %}
-    </ul>
+</div>
   {% endif %}
-{% endwith %}
+  {% endwith %}
 
 <form action="" method="post" class="container" novalidate enctype="multipart/form-data">
 	{{ form.hidden_tag() }}

@@ -9,6 +9,10 @@ from flask import Flask, render_template, url_for, flash, request, session, redi
 from flask_wtf.csrf import CSRFProtect
 from app.forms import SigninForm, SignupForm, ProfileForm, CourseForm, ResetPassword
 from google.cloud import storage as storage_cloud
+from flask import Blueprint
+from flask_paginate import Pagination, get_page_parameter, get_page_args
+
+
 
 
 app = Flask(__name__)
@@ -71,7 +75,6 @@ def is_public(fn):
                 return redirect(url_for('profile'))
         return fn(id, *args, **kwargs)
     return wrapper
-
 
 @app.route('/home')
 @app.route('/')
@@ -181,6 +184,7 @@ def profile():
 @app.route('/profile/courses', methods=['GET'])
 @ensure_logged_in
 def my_courses():
+    search = False
     """function for see your profile"""
     categories = db.child('categories').get().val()
     user = db.child('users').child(user_id()).get().val()
@@ -188,8 +192,17 @@ def my_courses():
     courses = dbc.collection(u'courses').where(
         u'created_by', u'==', user_id()).order_by(u'date', direction=firestore.Query.DESCENDING).get()
 
+#   PAGINATION
+    page, per_page, offset = get_page_args(page_parameter='page',
+                                           per_page_parameter='per_page')
+    total = len(courses)
+    courses_page = courses[offset: offset + per_page]
+    pagination_courses = courses_page
+    pagination = Pagination(page=page, per_page=per_page, total=total, css_framework='bootstrap4')
+#   PAGINATION
 
-    return render_template("profile/my_courses.html", courses=courses, categories=categories)
+
+    return render_template("profile/my_courses.html", courses=pagination_courses, categories=categories,  page=page, per_page=per_page, pagination=pagination)
 
 
 
@@ -343,7 +356,16 @@ def profile_courses_categories(category):
     courses = dbc.collection(u'courses').where(u'created_by', u'==', user_id()).where(
         u'category', u'==', category).order_by(u'date', direction=firestore.Query.DESCENDING).get()
 
-    return render_template(f"profile/courses_categories.html", courses=courses, category=category, categories=categories)
+    #   PAGINATION
+    page, per_page, offset = get_page_args(page_parameter='page',
+                                           per_page_parameter='per_page')
+    total = len(courses)
+    courses_page = courses[offset: offset + per_page]
+    pagination_courses = courses_page
+    pagination = Pagination(page=page, per_page=per_page, total=total, css_framework='bootstrap4')
+    #   PAGINATION
+
+    return render_template(f"profile/courses_categories.html", courses=pagination_courses, category=category, categories=categories, page=page, per_page=per_page, pagination=pagination)
 
 
 @app.route('/public/courses/', methods=['GET', 'POST'])
@@ -354,7 +376,16 @@ def public_courses():
     courses = dbc.collection(u'courses').where(u'public', u'==', True).order_by(
         u'date', direction=firestore.Query.DESCENDING).get()
 
-    return render_template(f"course/public_courses.html", courses=courses, categories=categories)
+#   PAGINATION
+    page, per_page, offset = get_page_args(page_parameter='page',
+                                           per_page_parameter='per_page')
+    total = len(courses)
+    courses_page = courses[offset: offset + per_page]
+    pagination_courses = courses_page
+    pagination = Pagination(page=page, per_page=per_page, total=total, css_framework='bootstrap4')
+#   PAGINATION
+
+    return render_template(f"course/public_courses.html", courses=pagination_courses, categories=categories, page=page, per_page=per_page, pagination=pagination)
 
 
 @app.route('/public/courses/<category>', methods=['GET', 'POST'])
@@ -365,7 +396,16 @@ def public_courses_categories(category):
     courses = dbc.collection(u'courses').where(u'public', u'==', True).where(
         u'category', u'==', category).order_by(u'date', direction=firestore.Query.DESCENDING).get()
 
-    return render_template(f"public/courses_categories.html", courses=courses, category=category, categories=categories)
+    #  PAGINATION
+    page, per_page, offset = get_page_args(page_parameter='page',
+                                           per_page_parameter='per_page')
+    total = len(courses)
+    courses_page = courses[offset: offset + per_page]
+    pagination_courses = courses_page
+    pagination = Pagination(page=page, per_page=per_page, total=total, css_framework='bootstrap4')
+    #  PAGINATION
+
+    return render_template(f"public/courses_categories.html", courses=pagination_courses, category=category, categories=categories, page=page, per_page=per_page, pagination=pagination)
 
 
 @app.errorhandler(404)

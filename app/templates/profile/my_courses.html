@@ -3,22 +3,24 @@
 {% block title %} Index {% endblock %}
 
 {% block content %}
+
 {% with messages = get_flashed_messages() %}
   {% if messages %}
-    <ul class="flashes">
-    {% for message in messages %}
-      <li>{{ message }}</li>
+  <div class="alert alert-info" role="alert">
+	{% for message in messages %}
+		<li>{{ message }}</li>
     {% endfor %}
-    </ul>
+</div>
   {% endif %}
-{% endwith %}
+  {% endwith %}
+
 <!-- Header -->
 <header id="header" class="alt">
 	<div class="inner">
 		<h1>Vos cours</h1>
 		<h2>Visionner et gérer vos cours</h2>
 		<div class="container text-center my-5">
-			<a href="{{ url_for('home')}}" class="btn btn-outline-dark text-center" role="button"
+			<a href="{{ url_for('profile')}}" class="btn btn-outline-dark text-center" role="button"
 				aria-pressed="true">Mon profil</a>
 		</div>
 	</div>
@@ -46,6 +48,11 @@
 
 	<div class="container">
 		<section class="articles my-5 text-center">
+			<div class="d-flex justify-content-center">
+				<div class="navigation">
+					{{ pagination.links }}
+				</div>
+			</div>
 			<div class="row">
 				{% for course in courses %}
 					{% set id_course = course.id %}
@@ -71,6 +78,19 @@
 			</div>
 		</section>
 	</div>
+	<div class="d-flex justify-content-center">
+		<div class="navigation">
+			{{ pagination.links }}
+		</div>
+	</div>
+	<div class="d-flex justify-content-center">
+		<div class="navigation">
+			{{ pagination.info }}
+		</div>
+	</div>
+	
+
+
 
 
 	<!-- Footer -->
