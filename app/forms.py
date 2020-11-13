@@ -54,6 +54,10 @@ class CourseForm(FlaskForm):
     submit = SubmitField('Ajouter le cours')
 
 
-class ResetPassword(FlaskForm):
+class ResetPasswordForm(FlaskForm):
     email = StringField('Adresse mail', validators=[DataRequired(), Email()])
     submit = SubmitField('Envoyer le mail')
+
+class SearchForm(FlaskForm):
+  search = StringField('Tapez le nom de votre cours', [DataRequired()])
+  submit = SubmitField('Rechercher')

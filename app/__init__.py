@@ -7,7 +7,7 @@ from functools import wraps
 from firebase_admin import credentials, auth as auth_admin, firestore
 from flask import Flask, render_template, url_for, flash, request, session, redirect, abort
 from flask_wtf.csrf import CSRFProtect
-from app.forms import SigninForm, SignupForm, ProfileForm, CourseForm, ResetPassword
+from app.forms import SigninForm, SignupForm, ProfileForm, CourseForm, ResetPasswordForm, SearchForm
 from google.cloud import storage as storage_cloud
 from flask import Blueprint
 from flask_paginate import Pagination, get_page_parameter, get_page_args
@@ -141,7 +141,7 @@ def signin():
 
 @app.route('/reset_password', methods=['GET', 'POST'])
 def reset():
-    form = ResetPassword()
+    form = ResetPasswordForm()
     email = request.form.get("email")
     # Sending Password reset email
     if form.validate_on_submit():
@@ -288,19 +288,28 @@ def create_course():
     return render_template("course/create_course.html", form=form)
 
 
-@app.route('/courses/<privacy>/<category>', methods=['GET'])
+@app.route('/courses/<privacy>/<category>', methods=['GET','POST'])
 @ensure_logged_in
 def courses(privacy, category):
+    form = SearchForm()
+    
+    if request.method == "POST":
+        q = request.form['search']
+    else:
+        q = ''
+    
     search = False
     """function for see your profile"""
     categories = db.child('categories').get().val()
     user = db.child('users').child(user_id()).get().val()
-    if privacy == 'private':
-        courses = dbc.collection(u'courses').where(
-            u'created_by', u'==', user_id()).order_by(u'date', direction=firestore.Query.DESCENDING)
-    elif privacy == 'public':
-        courses = dbc.collection(u'courses').where(u'public', u'==', True).order_by(
-            u'date', direction=firestore.Query.DESCENDING)
+    if privacy == 'private' and q == '':
+        courses = dbc.collection(u'courses').where(u'created_by', u'==', user_id()).order_by(u'date', direction=firestore.Query.DESCENDING)
+    elif privacy == 'private' and q != '':
+        courses = dbc.collection(u'courses').where(u'created_by', u'==', user_id()).where('title', '==', q ).order_by(u'date', direction=firestore.Query.DESCENDING)
+    elif privacy == 'public' and q == '':
+        courses = dbc.collection(u'courses').where(u'public', u'==', True).order_by(u'date', direction=firestore.Query.DESCENDING)
+    elif privacy == 'public' and q != '':
+        courses = dbc.collection(u'courses').where(u'public', u'==', True).where('title', '==', q ).order_by(u'date', direction=firestore.Query.DESCENDING)
     else:
         abort(404)
     if category != 'aucune':
@@ -327,7 +336,7 @@ def courses(privacy, category):
                             total=total, css_framework='bootstrap4')
 #   PAGINATION
 
-    return render_template("course/courses.html", courses=pagination_courses, categories=categories,  page=page, per_page=per_page, pagination=pagination, privacy=privacy, category=category)
+    return render_template("course/courses.html", courses=pagination_courses, categories=categories,  page=page, per_page=per_page, pagination=pagination, privacy=privacy, category=category, form=form)
 
 
 @app.route('/course/delete/<id>', methods=['GET', 'POST'])

@@ -47,8 +47,6 @@
 <!-- Wrapper -->
 <div id="wrapper">
 
-
-
 	<div class="container table-responsive">
 		<table class="table">
 			<thead>
@@ -66,11 +64,19 @@
 
 	<div class="container">
 		<section class="articles my-5 text-center">
-			<div class="d-flex justify-content-center">
-				<div class="navigation">
-					{{ pagination.links }}
-				</div>
-			</div>
+			<form action="" method="post" class="container" enctype="multipart/form-data" novalidate>
+				{{ form.hidden_tag() }}
+				<div class='' > 
+					<p>
+						{{ form.search.label }}<br>
+						{{ form.search(size=16) }}<br>
+						{% for errors in form.search.errors %}
+						<span style="color:red;">{{ errors }}</span>
+						{% endfor %}
+					</p>
+				</div> 
+				<p class="align-center"> {{ form.submit() }} </p>
+			</form>
 			<div class="row">
 				{% for course in courses %}
 				{% set id_course = course.id %}
