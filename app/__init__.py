@@ -292,26 +292,25 @@ def create_course():
 @ensure_logged_in
 def courses(privacy, category):
     form = SearchForm()
-    
+
     if request.method == "POST":
         q = request.form['search']
     else:
         q = ''
-    
+
     search = False
     """function for see your profile"""
     categories = db.child('categories').get().val()
     user = db.child('users').child(user_id()).get().val()
-    if privacy == 'private' and q == '':
-        courses = dbc.collection(u'courses').where(u'created_by', u'==', user_id()).order_by(u'date', direction=firestore.Query.DESCENDING)
-    elif privacy == 'private' and q != '':
-        courses = dbc.collection(u'courses').where(u'created_by', u'==', user_id()).where('title', '==', q ).order_by(u'date', direction=firestore.Query.DESCENDING)
-    elif privacy == 'public' and q == '':
-        courses = dbc.collection(u'courses').where(u'public', u'==', True).order_by(u'date', direction=firestore.Query.DESCENDING)
-    elif privacy == 'public' and q != '':
-        courses = dbc.collection(u'courses').where(u'public', u'==', True).where('title', '==', q ).order_by(u'date', direction=firestore.Query.DESCENDING)
+    if privacy == 'private':
+        courses = dbc.collection(u'courses').where(u'created_by', u'==', user_id(
+        )).order_by(u'date', direction=firestore.Query.DESCENDING)
+    elif privacy == 'public':
+        courses = dbc.collection(u'courses').where(u'public', u'==', True).order_by(
+            u'date', direction=firestore.Query.DESCENDING)
     else:
         abort(404)
+
     if category != 'aucune':
         check_category_exist = False
         i = 0
@@ -321,12 +320,18 @@ def courses(privacy, category):
             i += 1
         if check_category_exist == False:
             abort(404)
-
+            
         courses = courses.where(u'category', u'==', category)
 
     courses = courses.get()
-
-#   PAGINATION
+    if q != '':
+        search_course = list()
+        for course in courses:
+            course_dict = course.to_dict()
+            if course_dict['resume'].contains(q.lower()):
+                search_course.append(course)
+        courses = search_course
+    #   PAGINATION
     page, per_page, offset = get_page_args(page_parameter='page',
                                            per_page_parameter='per_page')
     total = len(courses)
