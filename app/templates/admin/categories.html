@@ -17,25 +17,32 @@
 <!-- Header -->
 <header id="header" class="alt">
 	<div class="inner">
-		<h1>Gestions des catégories</h1>
+		<h1>Gestion des catégories</h1>
 	</div>
 </header>
 
 
-<div id="wrapper">
+<div id="wrapper" class="text-center">
+	<h5>Ajouter une le nom d'une nouvelle catégorie</h5>
 	<form action="/admin/create" method="post">
 		<input type="text" name="create">
-		<button>Ajouter la catégorie</button>
+		<input class="my-2 px-3" id="submit" name="submit" type="submit" value="Ajouter">
 	</form>
+
+	
+
 	<div class="container table-responsive">
 		<table>
 			<thead>
 				<tr>
-					<th scope="col">
-						Action
+					<th class="text-center">
+						Modifier
 					</th>
-					<th scope="col">
+					<th class="text-center">
 						libellé
+					</th>
+					<th class="text-center">
+						Supprimer
 					</th>
 				</tr>
 			</thead>
@@ -43,20 +50,23 @@
 				{% for category in categories %}
 				<tr>
 					<th>
-
-						<form action="/admin/modify" method="post">
+						<form class="text-center" action="/admin/modify" method="post">
 							<input type="text" value={{category}} hidden name="category">
 							<input type="text" value={{category}} name="modify">
-							<button><i class="fas fa-exchange-alt"></i></button>
-						</form>
-						<form action="/admin/delete" method="post">
-							<input type="text" hidden value={{category}} name="delete">
-							<button><i class="fas fa-trash-alt"></i></button>
+							<button class="my-3 px-3"><i class="icon fas fa-edit"></i></button>
 						</form>
 					</th>
 					<th>
+						<div class="text-center">
 						{{ category }}
+						</div>
 					</th>
+					<th>
+					<form class="text-center" action="/admin/delete" method="post">
+						<input type="text" hidden value={{category}} name="delete">
+						<button class="my-3 px-3"><i class="icon fas fa-trash-alt"></i></button>
+					</form>
+				</th>
 				</tr>
 				{% endfor %}
 			</tbody>
