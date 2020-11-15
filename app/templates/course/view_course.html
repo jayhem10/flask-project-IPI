@@ -9,9 +9,9 @@
 {% with messages = get_flashed_messages() %}
 {% if messages %}
 <div class="alert alert-info" role="alert">
-	{% for message in messages %}
-	<li>{{ message }}</li>
-	{% endfor %}
+  {% for message in messages %}
+  <li>{{ message }}</li>
+  {% endfor %}
 </div>
 {% endif %}
 {% endwith %}
@@ -29,7 +29,7 @@
       <div> {{course['resume']}}</div>
       <div>Note</div>
       <div class="icons">
-        {% if is_my_course(course['created_by']) %}
+        {% if is_mine(course['created_by']) %}
         <a href="{{ url_for('delete_course', id=id_course) }}" class="icon fas fa-trash-alt"></a>
         <a href="{{ url_for('modify_course', id=id_course ) }}" class="icon fas fa-edit"></a>
         {% endif %}
@@ -39,17 +39,17 @@
 </div>
 
 <form action="" method="post" class="container" enctype="multipart/form-data" novalidate>
-	{{ form.hidden_tag() }}
-	<div class='' > 
-		<p>
-			{{ form.body.label }}<br>
-			{{ form.body(size=16) }}<br>
-			{% for errors in form.body.errors %}
-			<span style="color:red;">{{ errors }}</span>
-			{% endfor %}
-		</p>
-	</div> 
-	<p class="align-center"> {{ form.submit() }} </p>
+  {{ form.hidden_tag() }}
+  <div class=''>
+    <p>
+      {{ form.body.label }}<br>
+      {{ form.body(size=16) }}<br>
+      {% for errors in form.body.errors %}
+      <span style="color:red;">{{ errors }}</span>
+      {% endfor %}
+    </p>
+  </div>
+  <p class="align-center"> {{ form.submit() }} </p>
 </form>
 
 
@@ -82,8 +82,20 @@
                 
                 </a>
           </div>
+        </div>
+        <div class="post-description">
+          <p>{{comment['text']}}</p>
+        </div>
+        {% if is_mine(comment['created_by']) %}
+        <ul class="text-center">
+          <li><a href="{{ url_for('modify_comment', id=id_comment) }}" class="icon fas fa-edit"></a></li>
+          <li><a href="{{ url_for('delete_comment', id=id_comment) }}" class="icon fas fa-trash-alt"></a></li>
+        </ul>
+        {% endif %}
+        </a>
       </div>
-      {% endfor %}
+    </div>
+    {% endfor %}
   </div>
 </div>
 

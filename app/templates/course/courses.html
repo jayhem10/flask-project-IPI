@@ -18,28 +18,28 @@
 <header id="header" class="alt">
 	<div class="inner">
 		{% if privacy=='private' %}
-			{% if category=='aucune'%}
-				<h1>Vos cours</h1>
-			{% else %}
-				<h1>Vos cours : {{category}}</h1>
-			{% endif %}
-			<h2>Visionner et gérer vos cours</h2>
+		{% if category=='aucune'%}
+		<h1>Vos cours</h1>
 		{% else %}
-			{% if category=='aucune'%}
-				<h1>Tous les cours sont ici !</h1>
-			{% else %}
-				<h1>Tous les cours : {{category}}</h1>
-			{% endif %}
+		<h1>Vos cours : {{category}}</h1>
+		{% endif %}
+		<h2>Visionner et gérer vos cours</h2>
+		{% else %}
+		{% if category=='aucune'%}
+		<h1>Tous les cours sont ici !</h1>
+		{% else %}
+		<h1>Tous les cours : {{category}}</h1>
+		{% endif %}
 		{% endif %}
 		<div class="container text-center my-5">
 			{% if category=='aucune'%}
 			<a href="{{ url_for('profile')}}" class="btn btn-outline-dark text-center" role="button"
 				aria-pressed="true">Mon profil</a>
 			{% else %}
-			<a href="{{ url_for('courses', privacy=privacy, category='aucune')}}" class="btn btn-outline-dark text-center" role="button"
-				aria-pressed="true">Retour</a>
+			<a href="{{ url_for('courses', privacy=privacy, category='aucune')}}"
+				class="btn btn-outline-dark text-center" role="button" aria-pressed="true">Retour</a>
 			{% endif %}
-			
+
 		</div>
 	</div>
 </header>
@@ -66,7 +66,7 @@
 		<section class="articles my-5 text-center">
 			<form action="" method="post" class="container" enctype="multipart/form-data" novalidate>
 				{{ form.hidden_tag() }}
-				<div class='' > 
+				<div class=''>
 					<p>
 						{{ form.search.label }}<br>
 						{{ form.search(size=16) }}<br>
@@ -74,7 +74,7 @@
 						<span style="color:red;">{{ errors }}</span>
 						{% endfor %}
 					</p>
-				</div> 
+				</div>
 				<p class="align-center"> {{ form.submit() }} </p>
 			</form>
 			<div class="row">
@@ -93,7 +93,7 @@
 							<div class="icons">
 								<a href="{{ url_for('view_course', id=id_course )}}" class="button big">lire la
 									fiche</a>
-								{% if is_my_course(course['created_by']) %}
+								{% if is_mine(course['created_by']) %}
 								<a href="{{ url_for('delete_course', id=id_course) }}"
 									class="icon fas fa-trash-alt"></a>
 								<a href="{{ url_for('modify_course', id=id_course ) }}" class="icon fas fa-edit"></a>
