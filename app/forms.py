@@ -18,6 +18,10 @@ class SignupForm(FlaskForm):
         DataRequired(),
         Length(min=6, max=20)
     ])
+    confirm_password = PasswordField('Mot de passe', validators=[
+        DataRequired(),
+        Length(min=6, max=20)
+    ])
     lastname = StringField('Votre nom', validators=[DataRequired()])
     firstname = StringField('Votre prénom', validators=[DataRequired()])
     description = StringField(

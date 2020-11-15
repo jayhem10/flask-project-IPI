@@ -212,26 +212,29 @@ def signup():
 
     form = SignupForm()
     if form.validate_on_submit():
-        try:
-            user = auth.create_user_with_email_and_password(
-                email=request.form['email'],
-                password=request.form['password']
-            )
-            db.child('users').child(user['localId']).set({
-                'firstname': request.form['firstname'],
-                'lastname': request.form['lastname'],
-                'description': request.form['description'],
-                'email': request.form['email']
-            })
-            auth.send_email_verification(user['idToken'])
-            link = request.files.get('image', False)
-            if link:
-                storage.child(f'profile_pictures/{user["localId"]}').put(link)
-            flash(
-                'Votre compte a bien été créé, un email vous a été envoyé sur votre adresse mail !')
-            return redirect(url_for('signin'))
-        except:
-            flash('Une erreur est survenue lors de la création de votre compte')
+        if request.form['password'] != request.form['confirm_password']:
+            form.confirm_password.errors = ['Les mots de passes ne sont pas identiques']
+        else:
+            try:
+                user = auth.create_user_with_email_and_password(
+                    email=request.form['email'],
+                    password=request.form['password']
+                )
+                db.child('users').child(user['localId']).set({
+                    'firstname': request.form['firstname'],
+                    'lastname': request.form['lastname'],
+                    'description': request.form['description'],
+                    'email': request.form['email']
+                })
+                auth.send_email_verification(user['idToken'])
+                link = request.files.get('image', False)
+                if link:
+                    storage.child(f'profile_pictures/{user["localId"]}').put(link)
+                flash(
+                    'Votre compte a bien été créé, un email vous a été envoyé sur votre adresse mail !')
+                return redirect(url_for('signin'))
+            except:
+                flash('Une erreur est survenue lors de la création de votre compte')
     return render_template("auth/signup.html", form=form)
 
 
