@@ -452,7 +452,7 @@ def modify_course(id):
             })
 
             flash("Votre cours a bien été modifié.")
-            return redirect(url_for('my_courses', privacy='private'))
+            return redirect(url_for('courses', privacy='private', category='all'))
         except:
             flash(
                 'Une erreur est survenue lors de la modification de votre cours, veillez réessayer')
