@@ -58,35 +58,35 @@
     {% for comment in comments %}
     {% set id_comment = comment.id %}
     {% set comment = comment.to_dict() %}
-      <div class="col-12">
-          <div class="card card-white post">
-              <div class="post-heading">
-                  <div class="float-left image">
-                    <img src={{get_img(comment['created_by'])}} class="img-circle avatar" alt="user profile image">
-                  </div>
-                  <div class="float-left meta">
-                      <div class="title h5">
-                          <b>{{get_created_by_name(comment['created_by'])}}</b>
-                          a créé un commentaire.
-                      </div>
-                      <h6 class="text-muted time">{{comment['date'].strftime("%d/%m/%Y à %Hh%M")}}</h6>
-                  </div>
-              </div> 
-              <div class="post-description"> 
-                  <p>{{comment['text']}}</p>
-              </div>
-              {% if is_mine(comment['created_by']) %}
-              <ul class="text-center">
-                <li><a href="{{ url_for('modify_comment', id=id_comment) }}" class="icon fas fa-edit"></a></li>
-                <li><a href="{{ url_for('delete_comment', id=id_comment) }}" class="icon fas fa-trash-alt"></a></li>
-              </ul>
-              {% endif %}
+    <div class="col-12">
+      <div class="card card-white post">
+        <div class="post-heading">
+          <div class="float-left image">
+            <img src={{get_img(comment['created_by'])}} class="img-circle avatar" alt="user profile image">
+          </div>
+          <div class="float-left meta">
+            <div class="title h5">
+              <b>{{get_created_by_name(comment['created_by'])}}</b>
+              a créé un commentaire.
+            </div>
+            <h6 class="text-muted time">{{comment['date'].strftime("%d/%m/%Y à %Hh%M")}}</h6>
           </div>
         </div>
-        {% endfor %}
+        <div class="post-description">
+          <p>{{comment['text']}}</p>
+        </div>
+        {% if is_mine(comment['created_by']) %}
+        <ul class="text-center">
+          <li><a href="{{ url_for('modify_comment', id=id_comment) }}" class="icon fas fa-edit"></a></li>
+          <li><a href="{{ url_for('delete_comment', id=id_comment) }}" class="icon fas fa-trash-alt"></a></li>
+        </ul>
+        {% endif %}
       </div>
     </div>
-    
+    {% endfor %}
+  </div>
+</div>
+
 
 
 

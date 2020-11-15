@@ -48,12 +48,12 @@ def user_id():
 def get_pdf(id_course):
     return storage.child(f"courses/{id_course}").get_url(None)
 
+
 def get_img(id_user):
     return storage.child(f"profile_pictures/{id_user}").get_url(None)
 
 
 def get_created_by_name(id):
-    user = db.child('users').child(id).get().val()
     return user['firstname'] + ' ' + user['lastname']
 
 
@@ -67,7 +67,7 @@ def is_admin():
 
 
 def is_mine(id):
-    if id == session.get('user')['localId'] or is_admin():
+    if id == session.get('user')['localId']:
         return True
     else:
         return False
@@ -282,13 +282,28 @@ def delete_profile():
     """function for delete your profile"""
     link = f'profile_pictures/{user_id()}'
     if request.method == "POST":
-        bucket.blob(link).delete()
+        comments = dbc.collection(u'comments').where(u'created_by', u'==', user_id(
+        )).get()
+        comment_ids = []
+        for i in comments:
+            comment_ids.append(i.id)
+        for i in comment_ids:
+            dbc.collection(u'comments').document(i).delete()
+        try:
+            storage.child(
+                f"profile_pictures/{user_id()}").download('', 'image')
+            os.remove('image')
+            bucket.blob(link).delete()
+        except:
+            pass
+
         db.child('users').child(user_id()).remove()
         user = auth.current_user['localId']
         auth_admin.delete_user(user)
         session.clear()
+
         flash("Votre compte a bien été supprimé.")
-        return redirect(url_for('home'))
+        return redirect(url_for('profile'))
     return render_template("auth/delete.html")
 
 
