@@ -18,26 +18,26 @@
 <header id="header" class="alt">
 	<div class="inner">
 		{% if privacy=='private' %}
-		{% if category=='aucune'%}
+		{% if category=='all'%}
 		<h1>Vos cours</h1>
 		{% else %}
 		<h1>Vos cours : {{category}}</h1>
 		{% endif %}
 		<h2>Visionner et gérer vos cours</h2>
 		{% else %}
-		{% if category=='aucune'%}
+		{% if category=='all'%}
 		<h1>Tous les cours sont ici !</h1>
 		{% else %}
 		<h1>Tous les cours : {{category}}</h1>
 		{% endif %}
 		{% endif %}
 		<div class="container text-center my-5">
-			{% if category=='aucune'%}
+			{% if category=='all'%}
 			<a href="{{ url_for('profile')}}" class="btn btn-outline-dark text-center" role="button"
 				aria-pressed="true">Mon profil</a>
 			{% else %}
-			<a href="{{ url_for('courses', privacy=privacy, category='aucune')}}"
-				class="btn btn-outline-dark text-center" role="button" aria-pressed="true">Retour</a>
+			<a href="{{ url_for('courses', privacy=privacy, category='all')}}" class="btn btn-outline-dark text-center"
+				role="button" aria-pressed="true">Retour</a>
 			{% endif %}
 
 		</div>

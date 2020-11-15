@@ -39,8 +39,8 @@
           </a>
           <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
             <a class="nav-link drop" href="{{ url_for('create_course') }}">Ajouter un cours</a>
-            <a class="nav-link drop" href="{{ url_for('courses', privacy='private', category='aucune') }}">Mes cours</a>
-            <a class="nav-link drop" href="{{ url_for('courses', privacy='public', category='aucune') }}">Tous les
+            <a class="nav-link drop" href="{{ url_for('courses', privacy='private', category='all') }}">Mes cours</a>
+            <a class="nav-link drop" href="{{ url_for('courses', privacy='public', category='all') }}">Tous les
               cours</a>
           </div>
         </div>

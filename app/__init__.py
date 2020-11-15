@@ -54,6 +54,7 @@ def get_img(id_user):
 
 
 def get_created_by_name(id):
+    user = db.child('users').child(id).get().val()
     return user['firstname'] + ' ' + user['lastname']
 
 
@@ -331,7 +332,7 @@ def create_course():
                 })
 
                 flash('Votre cours un bien été créé')
-                return redirect(url_for('courses', privacy='private', category='aucune'))
+                return redirect(url_for('courses', privacy='private', category='all'))
 
             else:
                 form.course.errors = ['Ce champ est obligatoire !']
@@ -364,7 +365,7 @@ def courses(privacy, category):
     else:
         abort(404)
 
-    if category != 'aucune':
+    if category != 'all':
         check_category_exist = False
         i = 0
         while i < len(categories) and check_category_exist == False:
@@ -407,7 +408,7 @@ def delete_course(id):
         dbc.collection(u'courses').document(id).delete()
         bucket.blob(link).delete()
         flash("Votre fichier a bien été supprimé.")
-        return redirect(url_for('courses', privacy='private'))
+        return redirect(url_for('courses', privacy='private', category='all'))
     return render_template("course/delete_course.html")
 
 
