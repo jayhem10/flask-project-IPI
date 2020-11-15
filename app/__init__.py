@@ -60,7 +60,11 @@ def get_img(id_user):
 
 def get_created_by_name(id):
     user = db.child('users').child(id).get().val()
-    return user['firstname'] + ' ' + user['lastname']
+
+    if user != None:
+        return user['firstname'] + ' ' + user['lastname']
+    else:
+        return 'Utilisateur supprimé'
 
 
 def is_admin():
