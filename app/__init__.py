@@ -74,11 +74,7 @@ def is_mine(id):
 
 
 app.jinja_env.globals.update(
-<<<<<<< HEAD
-    get_pdf=get_pdf, is_my_course=is_my_course, get_created_by_name=get_created_by_name, is_admin=is_admin, get_img=get_img)
-=======
-    get_pdf=get_pdf, is_mine=is_mine, get_created_by_name=get_created_by_name, is_admin=is_admin)
->>>>>>> 6eda29d98cc7443f0e63eee4687de4ec951e6f6d
+    get_pdf=get_pdf, is_mine=is_mine, get_created_by_name=get_created_by_name, is_admin=is_admin, get_img=get_img)
 
 
 @app.errorhandler(404)

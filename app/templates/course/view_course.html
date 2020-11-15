@@ -75,29 +75,19 @@
               <div class="post-description"> 
                   <p>{{comment['text']}}</p>
               </div>
+              {% if is_mine(comment['created_by']) %}
               <ul class="text-center">
-                <li><a href="{{ url_for('modify_comment', idComment=id_comment) }}" class="icon fas fa-edit"></a></li>
-                <li><a href="{{ url_for('delete_comment', idComment=id_comment) }}" class="icon fas fa-trash-alt"></a></li>
+                <li><a href="{{ url_for('modify_comment', id=id_comment) }}" class="icon fas fa-edit"></a></li>
+                <li><a href="{{ url_for('delete_comment', id=id_comment) }}" class="icon fas fa-trash-alt"></a></li>
               </ul>
-                
-                </a>
+              {% endif %}
           </div>
         </div>
-        <div class="post-description">
-          <p>{{comment['text']}}</p>
-        </div>
-        {% if is_mine(comment['created_by']) %}
-        <ul class="text-center">
-          <li><a href="{{ url_for('modify_comment', id=id_comment) }}" class="icon fas fa-edit"></a></li>
-          <li><a href="{{ url_for('delete_comment', id=id_comment) }}" class="icon fas fa-trash-alt"></a></li>
-        </ul>
-        {% endif %}
-        </a>
+        {% endfor %}
       </div>
     </div>
-    {% endfor %}
-  </div>
-</div>
+    
+
 
 
 {% endblock %}
