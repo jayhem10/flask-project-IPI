@@ -50,7 +50,12 @@ def get_pdf(id_course):
 
 
 def get_img(id_user):
-    return storage.child(f"profile_pictures/{id_user}").get_url(None)
+    try:
+        storage.child(f"profile_pictures/{id_user}").download('', 'image')
+        os.remove('image')
+        return storage.child(f"profile_pictures/{id_user}").get_url(None)
+    except:
+        return '/static/images/profile.jpg'
 
 
 def get_created_by_name(id):
@@ -485,7 +490,7 @@ def delete_comment(id):
         ref = dbc.collection('comments').document(id).delete()
         flash('Votre commentaire un bien été supprimé')
         return redirect(request.referrer)
-    return render_template("comment/delete_comment.html")
+    return redirect(url_for('courses', privacy='private', category='all'))
 
 
 @app.route('/modify_comment/<id>', methods=['GET', 'POST'])
@@ -563,7 +568,7 @@ def create_category():
     if request.method == "POST":
         create_category = request.form.get('create')
         categories.append(create_category)
-        db.child('categories').set(categories)
+        db.child('categories').set([create_category])
 
     return render_template("admin/categories.html", categories=categories)
 
