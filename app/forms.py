@@ -59,5 +59,10 @@ class ResetPasswordForm(FlaskForm):
     submit = SubmitField('Envoyer le mail')
 
 class SearchForm(FlaskForm):
-  search = StringField('Tapez le nom de votre cours', [DataRequired()])
-  submit = SubmitField('Rechercher')
+    search = StringField('Tapez le nom de votre cours', [DataRequired()])
+    submit = SubmitField('Rechercher')
+
+class CommentForm(FlaskForm):
+    body = StringField('Votre commentaire',  widget=TextArea(), validators=[
+                         DataRequired(), Length(max=256)])
+    submit = SubmitField("Envoyer votre commentaire")

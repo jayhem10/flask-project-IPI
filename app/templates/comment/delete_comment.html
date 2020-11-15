@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %} Suppression du cours {% endblock %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class="container flashes">
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<div class="container  my-5 text-center">
+
+    <h1 class="">êtes-vous sûr de vouloir supprimer votre commentaire?</h1>
+        <div class="row">
+            <div class="col-12 mt-5">
+                <form method="post">
+                <input class="btn btn-primary center-block" name="confirm" type="submit"  value="OK">
+                <a class="btn btn-danger ml-3" href="{{ url_for('profile')}}" role="button">En fait, non!</a>
+            </div>
+        </form>
+        </div>
+</div>
+{% endblock %}

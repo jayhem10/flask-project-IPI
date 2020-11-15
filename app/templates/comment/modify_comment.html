@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %} Suppression du cours {% endblock %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class="container flashes">
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<form action="" method="post" class="container" enctype="multipart/form-data" novalidate>
+	{{ form.hidden_tag() }}
+	<div class='' > 
+		<p>
+			{{ form.body.label }}<br>
+			{{ form.body(size=16) }}<br>
+			{% for errors in form.body.errors %}
+			<span style="color:red;">{{ errors }}</span>
+			{% endfor %}
+		</p>
+	</div> 
+	<p class="align-center"> {{ form.submit() }} </p>
+</form>
+
+{% endblock %}

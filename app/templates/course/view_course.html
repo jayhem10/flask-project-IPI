@@ -5,20 +5,22 @@
 {% block content %}
 {% set id_course = course.id %}
 {% set course = course.to_dict() %}
-<h1 class="text-center my-5">{{course['title']}}</h1>
-<h3 class="text-center ">{{get_created_by_name(course['created_by'])}}</h3>
+
 {% with messages = get_flashed_messages() %}
 {% if messages %}
-<ul class="container flashes">
-  {% for message in messages %}
-  <li>{{ message }}</li>
-  {% endfor %}
-</ul>
+<div class="alert alert-info" role="alert">
+	{% for message in messages %}
+	<li>{{ message }}</li>
+	{% endfor %}
+</div>
 {% endif %}
 {% endwith %}
 
-<div class="container text-center">
+<h1 class="text-center my-5">{{course['title']}}</h1>
+<h3 class="text-center ">{{get_created_by_name(course['created_by'])}}</h3>
 
+
+<div class="container text-center">
   <articles>
     <h4>{{course['category']}}</h4>
     <div class="metadata">{{course['date'].strftime("%d/%m/%Y à %Hh%M")}}</div>
@@ -34,7 +36,55 @@
       </div>
     </div>
   </articles>
+</div>
 
+<form action="" method="post" class="container" enctype="multipart/form-data" novalidate>
+	{{ form.hidden_tag() }}
+	<div class='' > 
+		<p>
+			{{ form.body.label }}<br>
+			{{ form.body(size=16) }}<br>
+			{% for errors in form.body.errors %}
+			<span style="color:red;">{{ errors }}</span>
+			{% endfor %}
+		</p>
+	</div> 
+	<p class="align-center"> {{ form.submit() }} </p>
+</form>
+
+
+<div class="container my-5">
+  <div class="row">
+    {% for comment in comments %}
+    {% set id_comment = comment.id %}
+    {% set comment = comment.to_dict() %}
+      <div class="col-12">
+          <div class="card card-white post">
+              <div class="post-heading">
+                  <div class="float-left image">
+                      <img src="http://bootdey.com/img/Content/user_1.jpg" class="img-circle avatar" alt="user profile image">
+                  </div>
+                  <div class="float-left meta">
+                      <div class="title h5">
+                          <a href="#"><b>Ryan Haywood</b></a>
+                          made a post.
+                      </div>
+                      <h6 class="text-muted time">{{comment['date'].strftime("%d/%m/%Y à %Hh%M")}}</h6>
+                  </div>
+              </div> 
+              <div class="post-description"> 
+                  <p>{{comment['text']}}</p>
+              </div>
+              <ul class="text-center">
+                <li><a href="{{ url_for('modify_comment', idComment=id_comment) }}" class="icon fas fa-edit"></a></li>
+                <li><a href="{{ url_for('delete_comment', idComment=id_comment) }}" class="icon fas fa-trash-alt"></a></li>
+              </ul>
+                
+                </a>
+          </div>
+      </div>
+      {% endfor %}
+  </div>
 </div>
 
 

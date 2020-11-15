@@ -7,7 +7,7 @@ from functools import wraps
 from firebase_admin import credentials, auth as auth_admin, firestore
 from flask import Flask, render_template, url_for, flash, request, session, redirect, abort
 from flask_wtf.csrf import CSRFProtect
-from app.forms import SigninForm, SignupForm, ProfileForm, CourseForm, ResetPasswordForm, SearchForm
+from app.forms import SigninForm, SignupForm, ProfileForm, CourseForm, ResetPasswordForm, SearchForm, CommentForm
 from google.cloud import storage as storage_cloud
 from flask import Blueprint
 from flask_paginate import Pagination, get_page_parameter, get_page_args
@@ -301,7 +301,7 @@ def create_course():
                 return redirect(url_for('courses', privacy='private', category='aucune'))
 
             else:
-                form.course.errors = ['Ce champs est obligatoire !']
+                form.course.errors = ['Ce champ est obligatoire !']
         except:
             flash(
                 'Une erreur est survenue lors de la création de votre cours, veillez réessayer')
@@ -420,9 +420,54 @@ def modify_course(id):
 @ensure_logged_in
 @is_public
 def view_course(id):
+    form = CommentForm()
     """function for see a course"""
     course = dbc.collection('courses').document(id).get()
-    return render_template("course/view_course.html", course=course)
+    comments = dbc.collection(u'comments').where(u'idCourse', u'==', id).order_by(u'date', direction=firestore.Query.DESCENDING).get()
+
+    if form.validate_on_submit():
+        try:
+            ref = dbc.collection('comments').document()
+            ref.set({
+                u'text': request.form['body'],
+                u'created_by': user_id(),
+                u'date': datetime.datetime.utcnow(),
+                u'idCourse' : id
+            })
+            flash('Votre commentaire un bien été créé')
+            return redirect(request.url)
+        except:
+            flash('Une erreur est survenue lors de la création de votre commentaire, veillez réessayer')
+    return render_template("course/view_course.html", course=course, form = form, comments = comments)
+
+@app.route('/delete_comment/<idComment>', methods=['GET', 'POST'])
+@ensure_logged_in
+def delete_comment(idComment):
+    if request.method == "POST":
+            ref = dbc.collection('comments').document(idComment).delete()
+            flash('Votre commentaire un bien été supprimé')
+            return redirect(request.referrer)
+    return render_template("comment/delete_comment.html")
+
+@app.route('/modify_comment/<idComment>', methods=['GET', 'POST'])
+@ensure_logged_in
+def modify_comment(idComment):
+    comments = dbc.collection(u'comments').document(idComment).get().to_dict()
+    form = CommentForm()
+    form.submit.data = "Modifier le commentaire"
+    form.body.data = comments[u'text']
+    if form.validate_on_submit():
+        try:
+            ref = dbc.collection('comments').document(idComment)
+            ref.update({
+                u'text': request.form['body']
+            })
+            flash("Votre commentaire a bien été modifié.")
+            return redirect(url_for('profile'))
+        except:
+            flash('Une erreur est survenue lors de la modification de votre commentaire, veillez réessayer')
+
+    return render_template("comment/modify_comment.html", form=form)
 
 
 @app.route('/admin/categories', methods=['GET', 'POST'])
