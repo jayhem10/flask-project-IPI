@@ -6,7 +6,7 @@ V1 :
 
 - [x] DATABASE
   - [x] Initialise Firabase
-- [ ] USER
+- [x] USER
   - [x] Signup
   - [x] Signin
   - [x] Signout
@@ -30,21 +30,21 @@ V1 :
 V2:
 
 - [ ] ADMINISTRATION
-  - [ ] Refractor with roles ADMIN, MODERATOR, NORMAL
-  - [ ] Add panel admin
+  - [ ] Refractor with roles ADMIN, MODERATOR
+  - [x] Add panel admin
   - [ ] Add panel Moderator
   - [ ] ADMIN
     - [ ] Ban User | reason
-    - [ ] Create category
-    - [ ] Modify category
-    - [ ] Delete category
+    - [x] Create category
+    - [x] Modify category
+    - [x] Delete category
   - [ ] MODERATOR
     - [ ] Remove Course | report
 - [ ] Report
   - [ ] Send a report
 - [ ] COURSE
-  - [ ] Add pagination
-  - [ ] Add search bar
+  - [x] Add pagination
+  - [x] Add search bar
   - [ ] Add note
 - [ ] COMENTARY
   - [ ] Add comentary
