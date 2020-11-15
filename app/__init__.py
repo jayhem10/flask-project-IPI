@@ -45,20 +45,13 @@ def user_id():
         return session.get('user')['localId']
 
 
-def get_pdf(link):
-    return storage.child(f"courses/{link}").get_url(None)
+def get_pdf(id_course):
+    return storage.child(f"courses/{id_course}").get_url(None)
 
 
 def get_created_by_name(id):
     user = db.child('users').child(id).get().val()
     return user['firstname'] + ' ' + user['lastname']
-
-
-def is_my_course(course_id):
-    if course_id == session.get('user')['localId']:
-        return True
-    else:
-        return False
 
 
 def is_admin():
@@ -70,8 +63,15 @@ def is_admin():
         return False
 
 
+def is_mine(id):
+    if id == session.get('user')['localId'] or is_admin():
+        return True
+    else:
+        return False
+
+
 app.jinja_env.globals.update(
-    get_pdf=get_pdf, is_my_course=is_my_course, get_created_by_name=get_created_by_name, is_admin=is_admin)
+    get_pdf=get_pdf, is_mine=is_mine, get_created_by_name=get_created_by_name, is_admin=is_admin)
 
 
 @app.errorhandler(404)
@@ -94,10 +94,11 @@ def is_public(fn):
     def wrapper(id, *args, **kwargs):
         course_json = dbc.collection('courses').document(id).get()
         course = course_json.to_dict()
-        if course['public'] != True:
-            if user_id() != course['created_by']:
-                flash("Ce cours n'est pas public !")
-                return redirect(url_for('profile'))
+        if is_admin() == False:
+            if course['public'] != True:
+                if user_id() != course['created_by']:
+                    flash("Ce cours n'est pas public !")
+                    return redirect(url_for('profile'))
         return fn(id, *args, **kwargs)
     return wrapper
 
@@ -107,9 +108,23 @@ def have_access_course(fn):
     def wrapper(id, *args, **kwargs):
         course_json = dbc.collection('courses').document(id).get()
         course = course_json.to_dict()
-        if course['created_by'] != user_id():
-            flash("Ce n'est pas l'un de vos cours !")
-            return redirect(url_for('profile'))
+        if is_admin() == False:
+            if course['created_by'] != user_id():
+                flash("Ce n'est pas l'un de vos cours !")
+                return redirect(url_for('profile'))
+        return fn(id, *args, **kwargs)
+    return wrapper
+
+
+def have_access_comment(fn):
+    @wraps(fn)
+    def wrapper(id, *args, **kwargs):
+        comment_json = dbc.collection('comments').document(id).get()
+        comment = comment_json.to_dict()
+        if is_admin() == False:
+            if comment['created_by'] != user_id():
+                flash("Ce n'est pas l'un de vos commentaires !")
+                return redirect(url_for('profile'))
         return fn(id, *args, **kwargs)
     return wrapper
 
@@ -423,7 +438,8 @@ def view_course(id):
     form = CommentForm()
     """function for see a course"""
     course = dbc.collection('courses').document(id).get()
-    comments = dbc.collection(u'comments').where(u'idCourse', u'==', id).order_by(u'date', direction=firestore.Query.DESCENDING).get()
+    comments = dbc.collection(u'comments').where(u'idCourse', u'==', id).order_by(
+        u'date', direction=firestore.Query.DESCENDING).get()
 
     if form.validate_on_submit():
         try:
@@ -432,40 +448,46 @@ def view_course(id):
                 u'text': request.form['body'],
                 u'created_by': user_id(),
                 u'date': datetime.datetime.utcnow(),
-                u'idCourse' : id
+                u'idCourse': id
             })
             flash('Votre commentaire un bien été créé')
             return redirect(request.url)
         except:
-            flash('Une erreur est survenue lors de la création de votre commentaire, veillez réessayer')
-    return render_template("course/view_course.html", course=course, form = form, comments = comments)
+            flash(
+                'Une erreur est survenue lors de la création de votre commentaire, veillez réessayer')
+    return render_template("course/view_course.html", course=course, form=form, comments=comments)
 
-@app.route('/delete_comment/<idComment>', methods=['GET', 'POST'])
+
+@app.route('/delete_comment/<id>', methods=['GET', 'POST'])
 @ensure_logged_in
-def delete_comment(idComment):
+@have_access_comment
+def delete_comment(id):
     if request.method == "POST":
-            ref = dbc.collection('comments').document(idComment).delete()
-            flash('Votre commentaire un bien été supprimé')
-            return redirect(request.referrer)
+        ref = dbc.collection('comments').document(id).delete()
+        flash('Votre commentaire un bien été supprimé')
+        return redirect(request.referrer)
     return render_template("comment/delete_comment.html")
 
-@app.route('/modify_comment/<idComment>', methods=['GET', 'POST'])
+
+@app.route('/modify_comment/<id>', methods=['GET', 'POST'])
 @ensure_logged_in
-def modify_comment(idComment):
-    comments = dbc.collection(u'comments').document(idComment).get().to_dict()
+@have_access_comment
+def modify_comment(id):
+    comments = dbc.collection(u'comments').document(id).get().to_dict()
     form = CommentForm()
     form.submit.data = "Modifier le commentaire"
     form.body.data = comments[u'text']
     if form.validate_on_submit():
         try:
-            ref = dbc.collection('comments').document(idComment)
+            ref = dbc.collection('comments').document(id)
             ref.update({
                 u'text': request.form['body']
             })
             flash("Votre commentaire a bien été modifié.")
             return redirect(url_for('profile'))
         except:
-            flash('Une erreur est survenue lors de la modification de votre commentaire, veillez réessayer')
+            flash(
+                'Une erreur est survenue lors de la modification de votre commentaire, veillez réessayer')
 
     return render_template("comment/modify_comment.html", form=form)
 
