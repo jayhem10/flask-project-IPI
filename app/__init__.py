@@ -48,6 +48,9 @@ def user_id():
 def get_pdf(link):
     return storage.child(f"courses/{link}").get_url(None)
 
+def get_img(id_user):
+    return storage.child(f"profile_pictures/{id_user}").get_url(None)
+
 
 def get_created_by_name(id):
     user = db.child('users').child(id).get().val()
@@ -71,7 +74,7 @@ def is_admin():
 
 
 app.jinja_env.globals.update(
-    get_pdf=get_pdf, is_my_course=is_my_course, get_created_by_name=get_created_by_name, is_admin=is_admin)
+    get_pdf=get_pdf, is_my_course=is_my_course, get_created_by_name=get_created_by_name, is_admin=is_admin, get_img=get_img)
 
 
 @app.errorhandler(404)
