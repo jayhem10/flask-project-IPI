@@ -56,9 +56,21 @@
         </div>
 
         {% endif %}
-        <li class="nav-item active">
-          <a class="nav-link" href="#">Infos</a>
-        </li>
+
+        {% if is_admin() %}
+        <div class="dropdown nav-item">
+          <a class="btn  dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            <i class="fas fa-user-cog fa-3x"></i>
+          </a>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+            <a class="nav-link drop" href="{{ url_for('admin_categories') }}">Gestion des catégorie</a>
+            <a class="nav-link drop" href="{{ url_for('courses', privacy='private', category='aucune') }}">Mes cours</a>
+            <a class="nav-link drop" href="{{ url_for('courses', privacy='public', category='aucune') }}">Tous les
+              cours</a>
+          </div>
+        </div>
+        {% endif %}
       </ul>
     </div>
   </nav>

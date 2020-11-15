@@ -61,8 +61,17 @@ def is_my_course(course_id):
         return False
 
 
+def is_admin():
+    user_type = db.child('users').child(
+        user_id()).child('userType').get().val()
+    if user_type == 'ADMIN':
+        return True
+    else:
+        return False
+
+
 app.jinja_env.globals.update(
-    get_pdf=get_pdf, is_my_course=is_my_course, get_created_by_name=get_created_by_name)
+    get_pdf=get_pdf, is_my_course=is_my_course, get_created_by_name=get_created_by_name, is_admin=is_admin)
 
 
 @app.errorhandler(404)
@@ -93,7 +102,7 @@ def is_public(fn):
     return wrapper
 
 
-def have_access(fn):
+def have_access_course(fn):
     @wraps(fn)
     def wrapper(id, *args, **kwargs):
         course_json = dbc.collection('courses').document(id).get()
@@ -102,6 +111,18 @@ def have_access(fn):
             flash("Ce n'est pas l'un de vos cours !")
             return redirect(url_for('profile'))
         return fn(id, *args, **kwargs)
+    return wrapper
+
+
+def have_access_admin(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        user_type = db.child('users').child(
+            user_id()).child('userType').get().val()
+        if user_type != 'ADMIN':
+            flash("Vous n'avez pas accès à cette partie !")
+            return redirect(url_for('profile'))
+        return fn(*args, **kwargs)
     return wrapper
 
 
@@ -277,7 +298,7 @@ def create_course():
                 })
 
                 flash('Votre cours un bien été créé')
-                return redirect(url_for('courses', privacy='private'))
+                return redirect(url_for('courses', privacy='private', category='aucune'))
 
             else:
                 form.course.errors = ['Ce champs est obligatoire !']
@@ -288,15 +309,14 @@ def create_course():
     return render_template("course/create_course.html", form=form)
 
 
-@app.route('/courses/<privacy>/<category>', methods=['GET','POST'])
+@app.route('/courses/<privacy>/<category>', methods=['GET', 'POST'])
 @ensure_logged_in
 def courses(privacy, category):
     form = SearchForm()
 
+    q = ''
     if request.method == "POST":
         q = request.form['search']
-    else:
-        q = ''
 
     search = False
     """function for see your profile"""
@@ -320,7 +340,7 @@ def courses(privacy, category):
             i += 1
         if check_category_exist == False:
             abort(404)
-            
+
         courses = courses.where(u'category', u'==', category)
 
     courses = courses.get()
@@ -328,7 +348,7 @@ def courses(privacy, category):
         search_course = list()
         for course in courses:
             course_dict = course.to_dict()
-            if course_dict['resume'].contains(q.lower()):
+            if course_dict['resume'].lower().__contains__(q.lower()):
                 search_course.append(course)
         courses = search_course
     #   PAGINATION
@@ -346,7 +366,7 @@ def courses(privacy, category):
 
 @app.route('/course/delete/<id>', methods=['GET', 'POST'])
 @ensure_logged_in
-@have_access
+@have_access_course
 def delete_course(id):
     """function for delete a course"""
     link = f'courses/{id}'
@@ -360,7 +380,7 @@ def delete_course(id):
 
 @app.route('/course/modify/<id>', methods=['GET', 'POST'])
 @ensure_logged_in
-@have_access
+@have_access_course
 def modify_course(id):
     """function for modify a course"""
     course = dbc.collection(u'courses').document(id).get().to_dict()
@@ -403,6 +423,63 @@ def view_course(id):
     """function for see a course"""
     course = dbc.collection('courses').document(id).get()
     return render_template("course/view_course.html", course=course)
+
+
+@app.route('/admin/categories', methods=['GET', 'POST'])
+@ensure_logged_in
+@have_access_admin
+def admin_categories():
+    """"""
+    categories = db.child('categories').get().val()
+    return render_template("admin/categories.html", categories=categories)
+
+
+@app.route('/admin/delete', methods=['POST'])
+@ensure_logged_in
+@have_access_admin
+def delete_category():
+    if request.method == "POST":
+        category = request.form.get('delete')
+        categories = db.child('categories').get().val()
+        categories.remove(category)
+        db.child('categories').set(categories)
+
+    return render_template("admin/categories.html", categories=categories)
+
+
+@app.route('/admin/modify', methods=['POST'])
+@ensure_logged_in
+@have_access_admin
+def modify_category():
+    if request.method == "POST":
+        modify = request.form.get('modify')
+        category = request.form.get('category')
+        categories = db.child('categories').get().val()
+        categories.remove(category)
+        categories.append(modify)
+        db.child('categories').set(categories)
+        categories = dbc.collection(u'courses').where(
+            u'category', u'==', category).get()
+        for category in categories:
+            category_id = category.id
+            dbc.collection(u'courses').document(category_id).update({
+                u'category': modify
+            })
+        categories = db.child('categories').get().val()
+    return render_template("admin/categories.html", categories=categories)
+
+
+@app.route('/admin/create', methods=['POST'])
+@ensure_logged_in
+@have_access_admin
+def create_category():
+    categories = db.child('categories').get().val()
+    if request.method == "POST":
+        create_category = request.form.get('create')
+        categories.append(create_category)
+        db.child('categories').set(categories)
+
+    return render_template("admin/categories.html", categories=categories)
 
 
 if __name__ == "__main__":

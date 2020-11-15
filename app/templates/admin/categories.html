@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %} Index {% endblock %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<ul class="container flashes">
+	{% for message in messages %}
+	<li>{{ message }}</li>
+	{% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+
+<!-- Header -->
+<header id="header" class="alt">
+	<div class="inner">
+		<h1>Gestions des catégories</h1>
+	</div>
+</header>
+
+
+<div id="wrapper">
+	<form action="/admin/create" method="post">
+		<input type="text" name="create">
+		<button>Ajouter la catégorie</button>
+	</form>
+	<div class="container table-responsive">
+		<table>
+			<thead>
+				<tr>
+					<th scope="col">
+						Action
+					</th>
+					<th scope="col">
+						libellé
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for category in categories %}
+				<tr>
+					<th>
+
+						<form action="/admin/modify" method="post">
+							<input type="text" value={{category}} hidden name="category">
+							<input type="text" value={{category}} name="modify">
+							<button><i class="fas fa-exchange-alt"></i></button>
+						</form>
+						<form action="/admin/delete" method="post">
+							<input type="text" hidden value={{category}} name="delete">
+							<button><i class="fas fa-trash-alt"></i></button>
+						</form>
+					</th>
+					<th>
+						{{ category }}
+					</th>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+
+	</div>
+</div>
+{% endblock %}
