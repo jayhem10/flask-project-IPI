@@ -46,10 +46,10 @@ V2:
   - [x] Add pagination
   - [x] Add search bar
   - [ ] Add note
-- [ ] COMENTARY
-  - [ ] Add comentary
-  - [ ] Modify my comentary
-  - [ ] Delete my comentary
+- [x] COMENTARY
+  - [x] Add comentary
+  - [x] Modify my comentary
+  - [x] Delete my comentary
 
 # Description of the project :
 
