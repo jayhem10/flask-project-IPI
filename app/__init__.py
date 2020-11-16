@@ -574,7 +574,7 @@ def admin_categories():
 @ensure_logged_in
 @have_access_admin
 def create_category():
-""" function to create new categories - ADMIN ONLY"""
+    """ function to create new categories - ADMIN ONLY"""
     categories = db.child('categories').get().val()
     if request.method == "POST":
         create_category = request.form.get('create')
