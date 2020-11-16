@@ -445,7 +445,6 @@ def courses(privacy, category):
         q = request.form['search']
 
     search = False
-    """function for see your profile"""
     categories = db.child('categories').get().val()
     user = db.child('users').child(user_id()).get().val()
     if privacy == 'private':
