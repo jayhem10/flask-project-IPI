@@ -1,5 +1,9 @@
 # flask-project-IPI
 
+# LINK IF DONT WORK:
+
+# http://kemonas.alwaysdata.net/
+
 # TODO
 
 V1 :
