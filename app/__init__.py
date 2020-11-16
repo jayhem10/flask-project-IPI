@@ -80,6 +80,7 @@ def is_admin():
     else:
         return False
 
+
 def is_mine(id):
     """check if the course is one of the connected user"""
     if id == session.get('user')['localId']:
@@ -237,6 +238,7 @@ def signin():
 
     return render_template("auth/signin.html", form=form)
 
+
 @app.route('/signout')
 def signout():
     """signout function"""
@@ -261,7 +263,6 @@ def reset():
     return render_template("auth/reset_password.html", form=form)
 
 # USER END
-
 
 
 # PROFILE
@@ -418,6 +419,7 @@ def modify_course(id):
                 'Une erreur est survenue lors de la modification de votre cours, veillez réessayer')
     return render_template("course/modify_course.html", form=form)
 
+
 @app.route('/course/delete/<id>', methods=['GET', 'POST'])
 @ensure_logged_in
 @have_access_course
@@ -488,7 +490,6 @@ def courses(privacy, category):
     return render_template("course/courses.html", courses=pagination_courses, categories=categories,  page=page, per_page=per_page, pagination=pagination, privacy=privacy, category=category, form=form)
 
 
-
 @app.route('/course/view/<id>', methods=['GET', 'POST'])
 @ensure_logged_in
 @is_public
@@ -516,7 +517,7 @@ def view_course(id):
                 'Une erreur est survenue lors de la création de votre commentaire, veillez réessayer')
     return render_template("course/view_course.html", course=course, form=form, comments=comments)
 
-# COURSES END 
+# COURSES END
 
 
 # COMMENTS
