@@ -41,15 +41,18 @@ bucket = storage_client.bucket(BUCKET_NAME)
 
 
 def user_id():
+    """get the id of the logged-in user"""
     if session.get('user'):
         return session.get('user')['localId']
 
 
 def get_pdf(id_course):
+    """get pdf of current course"""
     return storage.child(f"courses/{id_course}").get_url(None)
 
 
 def get_img(id_user):
+    """get profile picture according to the id_user"""
     try:
         storage.child(f"profile_pictures/{id_user}").download('', 'image')
         os.remove('image')
@@ -59,6 +62,7 @@ def get_img(id_user):
 
 
 def get_created_by_name(id):
+    """get firstname and lastname with the id of an user"""
     user = db.child('users').child(id).get().val()
 
     if user != None:
@@ -68,6 +72,7 @@ def get_created_by_name(id):
 
 
 def is_admin():
+    """check if the user is an admin"""
     user_type = db.child('users').child(
         user_id()).child('userType').get().val()
     if user_type == 'ADMIN':
@@ -75,8 +80,8 @@ def is_admin():
     else:
         return False
 
-
 def is_mine(id):
+    """check if the course is one of the connected user"""
     if id == session.get('user')['localId']:
         return True
     else:
@@ -89,10 +94,12 @@ app.jinja_env.globals.update(
 
 @app.errorhandler(404)
 def invalid_route(e):
+    """error 404 template"""
     return render_template("error404.html")
 
 
 def ensure_logged_in(fn):
+    """Check if the user is connected or not"""
     @wraps(fn)
     def wrapper(*args, **kwargs):
         if not session.get('user'):
@@ -103,6 +110,7 @@ def ensure_logged_in(fn):
 
 
 def is_public(fn):
+    """check if the course is public or not"""
     @wraps(fn)
     def wrapper(id, *args, **kwargs):
         course_json = dbc.collection('courses').document(id).get()
@@ -117,6 +125,7 @@ def is_public(fn):
 
 
 def have_access_course(fn):
+    "checks if it's a course that belongs to the logged-in user + admin access"
     @wraps(fn)
     def wrapper(id, *args, **kwargs):
         course_json = dbc.collection('courses').document(id).get()
@@ -130,6 +139,7 @@ def have_access_course(fn):
 
 
 def have_access_comment(fn):
+    """checks if it's a comment that belongs to the logged-in user + admin access """
     @wraps(fn)
     def wrapper(id, *args, **kwargs):
         comment_json = dbc.collection('comments').document(id).get()
@@ -143,6 +153,7 @@ def have_access_comment(fn):
 
 
 def have_access_admin(fn):
+    """Check if the user is an ADMIN to access of admin pages"""
     @wraps(fn)
     def wrapper(*args, **kwargs):
         user_type = db.child('users').child(
@@ -157,52 +168,11 @@ def have_access_admin(fn):
 @app.route('/home')
 @app.route('/')
 def home():
+    """home page"""
     return render_template("home.html")
 
 
-@app.route('/signin', methods=['GET', 'POST'])
-def signin():
-    """function for signin"""
-    if session.get('user'):
-        return redirect(url_for('profile'))
-    form = SigninForm()
-    if form.validate_on_submit():
-        try:
-            login = auth.sign_in_with_email_and_password(
-                request.form['email'], request.form['password'])
-            email_verified = auth.get_account_info(
-                login['idToken'])['users'][0]['emailVerified']
-            if email_verified:
-                session['user'] = login
-                next_url = request.form.get("next")
-                if next_url:
-                    return redirect(next_url)
-                return redirect(url_for('profile'))
-            else:
-                flash(
-                    'Vous devez vérifier votre adresse mail ! (Pensez à vérifier vos courriers indésirables)')
-
-        except:
-            flash('L\'adresse mail et/ou le mot de passe est incorect')
-
-    return render_template("auth/signin.html", form=form)
-
-
-@app.route('/reset_password', methods=['GET', 'POST'])
-def reset():
-    form = ResetPasswordForm()
-    email = request.form.get("email")
-    # Sending Password reset email
-    if form.validate_on_submit():
-        try:
-            reset_email = auth.send_password_reset_email(email)
-            flash(
-                'Un email vous a été envoyé sur votre boite mail afin de réinitialiser votre mot de passe !')
-            return redirect(url_for('signin'))
-        except:
-            flash('Une erreur est survenue lors de la création de votre compte')
-    return render_template("auth/reset_password.html", form=form)
-
+# USER
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -240,11 +210,61 @@ def signup():
     return render_template("auth/signup.html", form=form)
 
 
+@app.route('/signin', methods=['GET', 'POST'])
+def signin():
+    """function for signin"""
+    if session.get('user'):
+        return redirect(url_for('profile'))
+    form = SigninForm()
+    if form.validate_on_submit():
+        try:
+            login = auth.sign_in_with_email_and_password(
+                request.form['email'], request.form['password'])
+            email_verified = auth.get_account_info(
+                login['idToken'])['users'][0]['emailVerified']
+            if email_verified:
+                session['user'] = login
+                next_url = request.form.get("next")
+                if next_url:
+                    return redirect(next_url)
+                return redirect(url_for('profile'))
+            else:
+                flash(
+                    'Vous devez vérifier votre adresse mail ! (Pensez à vérifier vos courriers indésirables)')
+
+        except:
+            flash('L\'adresse mail et/ou le mot de passe est incorect')
+
+    return render_template("auth/signin.html", form=form)
+
 @app.route('/signout')
 def signout():
+    """signout function"""
     session.clear()
     return redirect(url_for('home'))
 
+
+@app.route('/reset_password', methods=['GET', 'POST'])
+def reset():
+    """Reset password"""
+    form = ResetPasswordForm()
+    email = request.form.get("email")
+    # Sending Password reset email
+    if form.validate_on_submit():
+        try:
+            reset_email = auth.send_password_reset_email(email)
+            flash(
+                'Un email vous a été envoyé sur votre boite mail afin de réinitialiser votre mot de passe !')
+            return redirect(url_for('signin'))
+        except:
+            flash('Une erreur est survenue lors de la création de votre compte')
+    return render_template("auth/reset_password.html", form=form)
+
+# USER END
+
+
+
+# PROFILE
 
 @app.route('/profile', methods=['GET'])
 @ensure_logged_in
@@ -321,6 +341,10 @@ def delete_profile():
         return redirect(url_for('profile'))
     return render_template("auth/delete.html")
 
+# PROFILE END
+
+
+# COURSE
 
 @app.route('/course/create', methods=['GET', 'POST'])
 @ensure_logged_in
@@ -355,75 +379,6 @@ def create_course():
                 'Une erreur est survenue lors de la création de votre cours, veillez réessayer')
 
     return render_template("course/create_course.html", form=form)
-
-
-@app.route('/courses/<privacy>/<category>', methods=['GET', 'POST'])
-@ensure_logged_in
-def courses(privacy, category):
-    form = SearchForm()
-
-    q = ''
-    if request.method == "POST":
-        q = request.form['search']
-
-    search = False
-    """function for see your profile"""
-    categories = db.child('categories').get().val()
-    user = db.child('users').child(user_id()).get().val()
-    if privacy == 'private':
-        courses = dbc.collection(u'courses').where(u'created_by', u'==', user_id(
-        )).order_by(u'date', direction=firestore.Query.DESCENDING)
-    elif privacy == 'public':
-        courses = dbc.collection(u'courses').where(u'public', u'==', True).order_by(
-            u'date', direction=firestore.Query.DESCENDING)
-    else:
-        abort(404)
-
-    if category != 'all':
-        check_category_exist = False
-        i = 0
-        while i < len(categories) and check_category_exist == False:
-            if categories[i] == category:
-                check_category_exist = True
-            i += 1
-        if check_category_exist == False:
-            abort(404)
-
-        courses = courses.where(u'category', u'==', category)
-
-    courses = courses.get()
-    if q != '':
-        search_course = list()
-        for course in courses:
-            course_dict = course.to_dict()
-            if course_dict['resume'].lower().__contains__(q.lower()):
-                search_course.append(course)
-        courses = search_course
-    #   PAGINATION
-    page, per_page, offset = get_page_args(page_parameter='page',
-                                           per_page_parameter='per_page')
-    total = len(courses)
-    courses_page = courses[offset: offset + per_page]
-    pagination_courses = courses_page
-    pagination = Pagination(page=page, per_page=per_page,
-                            total=total, css_framework='bootstrap4')
-#   PAGINATION
-
-    return render_template("course/courses.html", courses=pagination_courses, categories=categories,  page=page, per_page=per_page, pagination=pagination, privacy=privacy, category=category, form=form)
-
-
-@app.route('/course/delete/<id>', methods=['GET', 'POST'])
-@ensure_logged_in
-@have_access_course
-def delete_course(id):
-    """function for delete a course"""
-    link = f'courses/{id}'
-    if request.method == "POST":
-        dbc.collection(u'courses').document(id).delete()
-        bucket.blob(link).delete()
-        flash("Votre fichier a bien été supprimé.")
-        return redirect(url_for('courses', privacy='private', category='all'))
-    return render_template("course/delete_course.html")
 
 
 @app.route('/course/modify/<id>', methods=['GET', 'POST'])
@@ -463,11 +418,82 @@ def modify_course(id):
                 'Une erreur est survenue lors de la modification de votre cours, veillez réessayer')
     return render_template("course/modify_course.html", form=form)
 
+@app.route('/course/delete/<id>', methods=['GET', 'POST'])
+@ensure_logged_in
+@have_access_course
+def delete_course(id):
+    """function for delete a course"""
+    link = f'courses/{id}'
+    if request.method == "POST":
+        dbc.collection(u'courses').document(id).delete()
+        bucket.blob(link).delete()
+        flash("Votre fichier a bien été supprimé.")
+        return redirect(url_for('courses', privacy='private', category='all'))
+    return render_template("course/delete_course.html")
+
+
+@app.route('/courses/<privacy>/<category>', methods=['GET', 'POST'])
+@ensure_logged_in
+def courses(privacy, category):
+    """Show the courses according to the privacy and the categories"""
+    form = SearchForm()
+
+    q = ''
+    if request.method == "POST":
+        q = request.form['search']
+
+    search = False
+    """function for see your profile"""
+    categories = db.child('categories').get().val()
+    user = db.child('users').child(user_id()).get().val()
+    if privacy == 'private':
+        courses = dbc.collection(u'courses').where(u'created_by', u'==', user_id(
+        )).order_by(u'date', direction=firestore.Query.DESCENDING)
+    elif privacy == 'public':
+        courses = dbc.collection(u'courses').where(u'public', u'==', True).order_by(
+            u'date', direction=firestore.Query.DESCENDING)
+    else:
+        abort(404)
+
+    if category != 'all':
+        check_category_exist = False
+        i = 0
+        while i < len(categories) and check_category_exist == False:
+            if categories[i] == category:
+                check_category_exist = True
+            i += 1
+        if check_category_exist == False:
+            abort(404)
+
+        courses = courses.where(u'category', u'==', category)
+
+    courses = courses.get()
+    if q != '':
+        search_course = list()
+        for course in courses:
+            course_dict = course.to_dict()
+            if course_dict['resume'].lower().__contains__(q.lower()):
+                search_course.append(course)
+        courses = search_course
+    """PAGINATION"""
+    page, per_page, offset = get_page_args(page_parameter='page',
+                                           per_page_parameter='per_page')
+    total = len(courses)
+    courses_page = courses[offset: offset + per_page]
+    pagination_courses = courses_page
+    pagination = Pagination(page=page, per_page=per_page,
+                            total=total, css_framework='bootstrap4')
+    """PAGINATION end"""
+
+    return render_template("course/courses.html", courses=pagination_courses, categories=categories,  page=page, per_page=per_page, pagination=pagination, privacy=privacy, category=category, form=form)
+
+
 
 @app.route('/course/view/<id>', methods=['GET', 'POST'])
 @ensure_logged_in
 @is_public
 def view_course(id):
+    """function to show a specific course + comments add"""
     form = CommentForm()
     """function for see a course"""
     course = dbc.collection('courses').document(id).get()
@@ -490,11 +516,16 @@ def view_course(id):
                 'Une erreur est survenue lors de la création de votre commentaire, veillez réessayer')
     return render_template("course/view_course.html", course=course, form=form, comments=comments)
 
+# COURSES END 
+
+
+# COMMENTS
 
 @app.route('/delete_comment/<id>', methods=['GET', 'POST'])
 @ensure_logged_in
 @have_access_comment
 def delete_comment(id):
+    """ function to delete our comment """
     if request.method == "POST":
         dbc.collection('comments').document(id).delete()
         flash('Votre commentaire un bien été supprimé')
@@ -506,6 +537,7 @@ def delete_comment(id):
 @ensure_logged_in
 @have_access_comment
 def modify_comment(id):
+    """ function to modify our comment """
     comments = dbc.collection(u'comments').document(id).get().to_dict()
     form = CommentForm()
     form.submit.data = "Modifier le commentaire"
@@ -524,25 +556,30 @@ def modify_comment(id):
 
     return render_template("comment/modify_comment.html", form=form)
 
+# COMMENT END
+
+
+# ADMIN
 
 @app.route('/admin/categories', methods=['GET', 'POST'])
 @ensure_logged_in
 @have_access_admin
 def admin_categories():
-    """"""
+    """function to show categories - ADMIN ONLY"""
     categories = db.child('categories').get().val()
     return render_template("admin/categories.html", categories=categories)
 
 
-@app.route('/admin/delete', methods=['POST'])
+@app.route('/admin/create', methods=['POST'])
 @ensure_logged_in
 @have_access_admin
-def delete_category():
+def create_category():
+""" function to create new categories - ADMIN ONLY"""
+    categories = db.child('categories').get().val()
     if request.method == "POST":
-        category = request.form.get('delete')
-        categories = db.child('categories').get().val()
-        categories.remove(category)
-        db.child('categories').set(categories)
+        create_category = request.form.get('create')
+        categories.append(create_category)
+        db.child('categories').set([create_category])
 
     return render_template("admin/categories.html", categories=categories)
 
@@ -551,6 +588,7 @@ def delete_category():
 @ensure_logged_in
 @have_access_admin
 def modify_category():
+    """ function to modify a categories - ADMIN ONLY """
     if request.method == "POST":
         modify = request.form.get('modify')
         category = request.form.get('category')
@@ -569,17 +607,20 @@ def modify_category():
     return render_template("admin/categories.html", categories=categories)
 
 
-@app.route('/admin/create', methods=['POST'])
+@app.route('/admin/delete', methods=['POST'])
 @ensure_logged_in
 @have_access_admin
-def create_category():
-    categories = db.child('categories').get().val()
+def delete_category():
+    """ function to delete categories - ADMIN ONLY """
     if request.method == "POST":
-        create_category = request.form.get('create')
-        categories.append(create_category)
-        db.child('categories').set([create_category])
+        category = request.form.get('delete')
+        categories = db.child('categories').get().val()
+        categories.remove(category)
+        db.child('categories').set(categories)
 
     return render_template("admin/categories.html", categories=categories)
+
+# ADMIN END
 
 
 if __name__ == "__main__":
