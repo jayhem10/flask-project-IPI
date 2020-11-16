@@ -213,7 +213,8 @@ def signup():
     form = SignupForm()
     if form.validate_on_submit():
         if request.form['password'] != request.form['confirm_password']:
-            form.confirm_password.errors = ['Les mots de passes ne sont pas identiques']
+            form.confirm_password.errors = [
+                'Les mots de passes ne sont pas identiques']
         else:
             try:
                 user = auth.create_user_with_email_and_password(
@@ -229,7 +230,8 @@ def signup():
                 auth.send_email_verification(user['idToken'])
                 link = request.files.get('image', False)
                 if link:
-                    storage.child(f'profile_pictures/{user["localId"]}').put(link)
+                    storage.child(
+                        f'profile_pictures/{user["localId"]}').put(link)
                 flash(
                     'Votre compte a bien été créé, un email vous a été envoyé sur votre adresse mail !')
                 return redirect(url_for('signin'))
@@ -494,7 +496,7 @@ def view_course(id):
 @have_access_comment
 def delete_comment(id):
     if request.method == "POST":
-        ref = dbc.collection('comments').document(id).delete()
+        dbc.collection('comments').document(id).delete()
         flash('Votre commentaire un bien été supprimé')
         return redirect(request.referrer)
     return redirect(url_for('courses', privacy='private', category='all'))
